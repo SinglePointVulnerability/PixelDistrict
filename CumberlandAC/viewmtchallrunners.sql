@@ -1,0 +1,14 @@
+SELECT DISTINCT tblMTChallDivGenOverallPoints.RunnerID,
+tblRunners.RunnerFirstName,
+tblRunners.RunnerSurname,
+tblMTChallDivGenOverallPoints.RunnerSex,
+tblMembershipArchive.RunnerDiv,
+tblMTChallDivGenOverallPoints.MTChallDivGenOverallPoints,
+tblMTChallDivGenOverallPoints.ChampionshipID,
+tblMTChallDivGenOverallPoints.ChampYear
+FROM tblMTChallDivGenOverallPoints
+    JOIN tblRunners ON tblMTChallDivGenOverallPoints.RunnerID = tblRunners.RunnerID
+    JOIN tblMembershipArchive ON tblMTChallDivGenOverallPoints.RunnerID = tblMembershipArchive.RunnerID
+WHERE tblMTChallDivGenOverallPoints.MTChallDivGenOverallPoints > 0
+ORDER BY tblMTChallDivGenOverallPoints.RunnerSex,
+tblMTChallDivGenOverallPoints.MTChallDivGenOverallPoints DESC

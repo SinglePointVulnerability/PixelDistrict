@@ -1,0 +1,1 @@
+select tblRunners.RunnerID AS RunnerID,tblRunners.RunnerDiv AS RunnerDiv,tblRunners.RunnerSex AS RunnerSex,tblRunners.RunnerFirstName AS RunnerFirstName,tblRunners.RunnerSurname AS RunnerSurname,tblRunners.RunnerSubsPaid AS RunnerSubsPaid from tblRunners order by tblRunners.RunnerDiv,tblRunners.RunnerSex,tblRunners.RunnerSurname,tblRunners.RunnerFirstName

@@ -1,0 +1,22 @@
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_MTChall_MF_getTimesPoints`(IN `runner_id` INT, INOUT `race_1` VARCHAR(32), INOUT `race_2` VARCHAR(32), INOUT `race_3` VARCHAR(32), INOUT `race_4` VARCHAR(32), INOUT `race_5` VARCHAR(32), INOUT `race_6` VARCHAR(32), INOUT `race_7` VARCHAR(32), INOUT `race_8` VARCHAR(32), INOUT `race_9` VARCHAR(32))
+    NO SQL
+BEGIN
+
+SELECT CONCAT(tblRaceTimes.RaceID, '//', tblRaceTimes.RaceTime, '//', tblMTChallDivGenRacePoints.MTChallDivGenRacePoints) INTO race_1 FROM tblRaceTimes INNER JOIN tblMTChallDivGenRacePoints ON tblRaceTimes.RunnerID = tblMTChallDivGenRacePoints.RunnerID AND tblRaceTimes.RaceID = tblMTChallDivGenRacePoints.RaceID WHERE tblRaceTimes.RaceID=race_1 AND tblMTChallDivGenRacePoints.RunnerID=runner_id;
+SELECT CONCAT(tblRaceTimes.RaceID, '//', tblRaceTimes.RaceTime, '//', tblMTChallDivGenRacePoints.MTChallDivGenRacePoints) INTO race_2 FROM tblRaceTimes INNER JOIN tblMTChallDivGenRacePoints ON tblRaceTimes.RunnerID = tblMTChallDivGenRacePoints.RunnerID AND tblRaceTimes.RaceID = tblMTChallDivGenRacePoints.RaceID WHERE tblRaceTimes.RaceID=race_2 AND tblMTChallDivGenRacePoints.RunnerID=runner_id;
+SELECT CONCAT(tblRaceTimes.RaceID, '//', tblRaceTimes.RaceTime, '//', tblMTChallDivGenRacePoints.MTChallDivGenRacePoints) INTO race_3 FROM tblRaceTimes INNER JOIN tblMTChallDivGenRacePoints ON tblRaceTimes.RunnerID = tblMTChallDivGenRacePoints.RunnerID AND tblRaceTimes.RaceID = tblMTChallDivGenRacePoints.RaceID WHERE tblRaceTimes.RaceID=race_3 AND tblMTChallDivGenRacePoints.RunnerID=runner_id;
+SELECT CONCAT(tblRaceTimes.RaceID, '//', tblRaceTimes.RaceTime, '//', tblMTChallDivGenRacePoints.MTChallDivGenRacePoints) INTO race_4 FROM tblRaceTimes INNER JOIN tblMTChallDivGenRacePoints ON tblRaceTimes.RunnerID = tblMTChallDivGenRacePoints.RunnerID AND tblRaceTimes.RaceID = tblMTChallDivGenRacePoints.RaceID WHERE tblRaceTimes.RaceID=race_4 AND tblMTChallDivGenRacePoints.RunnerID=runner_id;
+SELECT CONCAT(tblRaceTimes.RaceID, '//', tblRaceTimes.RaceTime, '//', tblMTChallDivGenRacePoints.MTChallDivGenRacePoints) INTO race_5 FROM tblRaceTimes INNER JOIN tblMTChallDivGenRacePoints ON tblRaceTimes.RunnerID = tblMTChallDivGenRacePoints.RunnerID AND tblRaceTimes.RaceID = tblMTChallDivGenRacePoints.RaceID WHERE tblRaceTimes.RaceID=race_5 AND tblMTChallDivGenRacePoints.RunnerID=runner_id;
+SELECT CONCAT(tblRaceTimes.RaceID, '//', tblRaceTimes.RaceTime, '//', tblMTChallDivGenRacePoints.MTChallDivGenRacePoints) INTO race_6 FROM tblRaceTimes INNER JOIN tblMTChallDivGenRacePoints ON tblRaceTimes.RunnerID = tblMTChallDivGenRacePoints.RunnerID AND tblRaceTimes.RaceID = tblMTChallDivGenRacePoints.RaceID WHERE tblRaceTimes.RaceID=race_6 AND tblMTChallDivGenRacePoints.RunnerID=runner_id;
+SELECT CONCAT(tblRaceTimes.RaceID, '//', tblRaceTimes.RaceTime, '//', tblMTChallDivGenRacePoints.MTChallDivGenRacePoints) INTO race_7 FROM tblRaceTimes INNER JOIN tblMTChallDivGenRacePoints ON tblRaceTimes.RunnerID = tblMTChallDivGenRacePoints.RunnerID AND tblRaceTimes.RaceID = tblMTChallDivGenRacePoints.RaceID WHERE tblRaceTimes.RaceID=race_7 AND tblMTChallDivGenRacePoints.RunnerID=runner_id;
+SELECT CONCAT(tblRaceTimes.RaceID, '//', tblRaceTimes.RaceTime, '//', tblMTChallDivGenRacePoints.MTChallDivGenRacePoints) INTO race_8 FROM tblRaceTimes INNER JOIN tblMTChallDivGenRacePoints ON tblRaceTimes.RunnerID = tblMTChallDivGenRacePoints.RunnerID AND tblRaceTimes.RaceID = tblMTChallDivGenRacePoints.RaceID WHERE tblRaceTimes.RaceID=race_8 AND tblMTChallDivGenRacePoints.RunnerID=runner_id;
+SELECT CONCAT(tblRaceTimes.RaceID, '//', tblRaceTimes.RaceTime, '//', tblMTChallDivGenRacePoints.MTChallDivGenRacePoints) INTO race_9 FROM tblRaceTimes INNER JOIN tblMTChallDivGenRacePoints ON tblRaceTimes.RunnerID = tblMTChallDivGenRacePoints.RunnerID AND tblRaceTimes.RaceID = tblMTChallDivGenRacePoints.RaceID WHERE tblRaceTimes.RaceID=race_9 AND tblMTChallDivGenRacePoints.RunnerID=runner_id;
+/* If the query returns NULL, then the procedure will return an empty table cell '<td></td>', otherwise it will return a time '<td>45:00</td>'*/
+
+/* good example of a loop in MySQL stored procedure:
+https://stackoverflow.com/questions/14326775/call-a-stored-procedure-for-each-row-returned-by-a-query-in-mysql
+*/
+
+END$$
+DELIMITER ;

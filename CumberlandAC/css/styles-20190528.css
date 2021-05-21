@@ -1,0 +1,323 @@
+body {
+    background-color: black;
+    color:orange;
+}
+
+.refresh_button {
+  background-color: orange; /* Green */
+  border: darkred;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+}
+.refresh_button:hover {
+  box-shadow: 0 12px 16px 0 rgba(255,255,255,0.55), 0 15px 50px 0 rgba(255,255,255,0.19);
+  cursor: pointer;
+}
+
+table.tblChamp tr:hover td{
+    background: orange;
+}
+
+th {
+    background-color:darkred;
+    color: orange;
+    font-weight:bold;
+    font-size:1.2em;
+}
+td {
+    background-color: darkgray;
+    color: black;   
+}
+
+.tblLabel {
+    font-weight:500;
+    font-size:0.8em;
+}
+.tblInput {
+    color: orangered;
+    font-weight:300;
+    font-size:1em;
+}
+
+.fontRaceTime, .fontRacePoints {
+    font-size:0.7em;
+}
+
+/*
+    CAC Stats - Start
+*/
+.statsHeader {
+    color: #000000;
+}
+.statsText {
+    color: #000000;
+}
+/*
+    CAC Stats - End
+*/
+
+
+/*
+    div orange paper and archive tabs - Start
+*/
+.orangePaperTabSelected {
+    background-image: url("../images/orange-paper-texture-with-flecks(40pc)-tab-selected.jpg");
+    background-repeat: no-repeat;
+    background-size: contain;
+    height:25px;width:100px;
+    z-index: 1;
+    float: left;
+    
+    text-align: center;
+    font-weight: 900;
+    font-size: 1.5em;
+    color: black;
+}
+.orangePaperTabUnSelected {
+    background-image: url("../images/orange-paper-texture-with-flecks(40pc)-tab-unselected.jpg");
+    background-repeat: no-repeat;
+    background-size: contain;
+    height:25px;width:100px;
+    z-index: 1;
+    float: left;
+    
+    text-align: center;
+    font-size: 1.5em;
+    font-weight: 600;
+    color: #444444;
+}
+.orangePaperBackground {
+    background-image: url("../images/orange-paper-texture-with-flecks(40pc).jpg");
+    background-repeat:repeat-y;
+    background-size:contain;
+    height:75em;width:60em;
+    z-index: 1;
+    clear: both;
+}
+
+/*
+    div orange paper and archive tabs - End
+*/
+
+/*
+    Accordion table styles - Start
+*/
+/*.accordion {
+    background-color: #eee;
+    color: #444;
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+    transition: 0.4s;
+}
+
+.active, .accordion:hover {
+    background-color: #ccc;
+}
+
+.accordion:after {
+    content: '\002B';
+    color: #777;
+    font-weight: bold;
+    float: right;
+    margin-left: 5px;
+}
+
+.active:after {
+    content: "\2212";
+}
+
+.panel {
+    padding: 0 0px;
+    background-color: #000000;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+}*/
+/*
+    Accordion table styles - End
+*/
+
+
+/*
+    Times Points Outer Table - Start
+*/
+table.tblTimesPointsOuterOpen, table.tblTimesPointsOuterShort, table.tblTimesPointsOuterMT {
+    padding: 0 0px;
+    border-spacing: 2px;
+    background-color: #000000;
+}
+/*table.tblTimesPointsOuterOpen {
+    width:111em;
+}*/
+table.tblTimesPointsOuterShort {
+    width:79em;
+}
+table.tblTimesPointsOuterMT {
+    width:63em;
+}
+
+.tblTimesPointsOuterOpen td, .tblTimesPointsOuterShort td, .tblTimesPointsOuterMT td {
+    color:white;
+    background-color: black;
+}
+/*
+.tblTimesPointsOuterSpacer {
+    background-color:black;
+    width: 35em;
+}*/
+/*
+    Times Points Outer Table - End
+*/
+
+/*
+    Times Points Inner Table - Start
+*/
+
+tr.tblTimesPointsInner {
+    background-color: black;
+    color: white;
+}
+
+td.tblTimesPointsInner, td.tblTimesPointsInnerLadies, td.tblTimesPointsInnerMT {
+    color: whitesmoke;
+    width: 5em;
+    text-align: center;
+    }
+td.tblTimesPointsInner {
+    background-color: #1c1c1c;    
+}
+td.tblTimesPointsInnerLadies {
+    background-color: #26001c;
+    }
+
+td.tblTimesPointsInnerMT {
+    background-color: #002304;
+    }
+
+td.tblTimesPointsInnerNames {
+    width: 12em;
+    text-align: right;
+}
+
+/*
+    Times Points Inner Table - End
+*/
+
+
+/*
+    Nav Bar - Start
+*/
+.tblNavBar td {
+    background-color: black;
+    padding: 0.1em;
+}
+
+.tblNavBar td:hover {
+    background-color: white;
+    padding: 0.1em;
+}
+
+.fontSeeRacePoints a {
+    background-color: orangered;
+    font-size:0.8em;
+    font-weight:600;
+    text-decoration: none;    
+}
+.fontSeeRaceTimes a {
+    background-color: orange;
+    font-size:0.8em;
+    font-weight:600;
+    text-decoration: none;    
+}
+.fontSeeArchive a {
+    background-color: whitesmoke;
+    font-size:0.8em;
+    font-weight:600;
+    text-decoration: none;       
+}
+.fontBack a {
+    background-color: yellow;
+    font-size:0.8em;
+    font-weight:600;
+    text-decoration: none;       
+}
+/*
+    Nav Bar - End
+*/
+
+
+.tblChampFirst {
+    background-color: gold;
+}
+.tblChampSecond {
+    background-color: silver;
+}
+.tblChampThird {
+    background-color: #8C7853;
+}
+
+
+/* Own version: Table header text rotate */
+.rotate90 {
+   /* modified from https://www.sep.com/sep-blog/2017/05/04/rotating-title-headers-tables/ */
+   overflow: hidden;
+   text-align: center;
+   transform: translate(-50%, 100%) rotate(-90deg) translate(50%, 50%) translate(-3px, 0);
+   white-space: nowrap;
+   position: absolute;
+   line-height: 75px;
+}
+/* Own version: Table header text rotate */
+
+
+/* START https://codepen.io/andornagy/pen/gaGBZz */
+
+[data-toggle="toggle"] {
+	display: none;
+}
+.fntSprint {
+    color: yellow;
+}
+.fntMiddle {
+    color: orange;
+}
+.fntLong {
+    color: red;
+}
+.labels tr td {
+    background-color: #eee;
+    color: #444;
+    cursor: pointer;
+    padding: 8px;
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 1em;
+    transition: 0.4s;
+    text-align: left;
+}
+.labels tr td:hover {
+    background-color: #ccc;
+}
+.label tr td label {
+	display: block;
+}
+/* END https://codepen.io/andornagy/pen/gaGBZz */
+
+a {
+    color:black;
+}
+
+.txtLogin {
+    color: orange;
+    text-decoration: none;
+}

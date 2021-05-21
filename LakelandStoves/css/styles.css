@@ -1,0 +1,139 @@
+.pixelDistrit {
+    display: block;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 150px;
+    font-size: 1.1em;
+    color: white;
+}
+
+.lakelandStovesSlogan {
+    background-color: black;
+    color:white;
+    text-align:center;
+    font-size: 2em;
+    font-style:italic;
+}
+
+.LakelandStovesLogo {
+    position: absolute;
+    width: 300px;
+    height: 115px;
+    z-index: 10;
+    top: 50%;
+    left: 50%;
+    margin: -410px 0 0 -150px;
+}
+
+.menuLHS {
+    position: absolute;
+    width: 480px;
+    height: 50px;
+    z-index: 2;
+    top: 50%;
+    left: 50%;
+    margin: -135px 0 0 -585px;
+    -webkit-transform: rotate(-90deg); /* Safari and Chrome */
+    -moz-transform: rotate(-90deg);   /* Firefox */
+    -ms-transform: rotate(-90deg);   /* IE 9 */
+    -o-transform: rotate(-90deg);   /* Opera */
+    transform: rotate(-90deg);
+    font-size: 2em;
+    text-align: center;
+    color: white;
+}
+
+.menuRHS {
+    position: absolute;
+    width: 480px;
+    height: 50px;
+    z-index: 2;
+    top: 50%;
+    left: 50%;
+    margin: -135px 0 0 105px;
+    -webkit-transform: rotate(90deg); /* Safari and Chrome */
+    -moz-transform: rotate(90deg);   /* Firefox */
+    -ms-transform: rotate(90deg);   /* IE 9 */
+    -o-transform: rotate(90deg);   /* Opera */
+    transform: rotate(90deg);
+    font-size: 2em;
+    text-align: center;
+    color: white;
+}
+
+.centralBody {
+  position: absolute;
+  width: 640px;
+  height: 480px;
+  z-index: 3;
+  top: 50%;
+  left: 50%;
+  margin: -350px 0 0 -320px;
+  background: #4d0000;
+}
+
+.NACS_HETAS {
+    display: block;
+    position: absolute;
+    width: 150px;
+    z-index: 1;
+    bottom: 0;
+    left: 0;
+    margin: 0 0 0 0;
+}
+
+.centralContact {
+  position: absolute;
+  width: 400px;
+  height: 140px;
+  z-index: 4;
+  top: 50%;
+  left: 50%;
+  margin: -70px 0 0 -200px;
+    font-size: 2em;
+    color: #808080;
+    text-align: center;
+}
+
+.stovePic {
+    position: absolute;
+    width: 278px;
+    height: 480px;
+    z-index: 4;
+    top: 50%;
+    left: 50%;
+    margin: -240px 0 0 -139px;
+}
+
+.menuHyperlink {
+    color: white;
+    text-decoration: none;
+}
+
+.galleryTopLeft {
+    position: absolute;
+    width: 315px;
+    height: 235px;
+    z-index: 4;
+    top:2;
+    left: 2;
+}
+
+.galleryTopRight {
+    position: absolute;
+    width: 315px;
+    height: 235px;
+    z-index: 4;
+    top:2;
+    right: 2;
+}
+
+.galleryBottomLeft {
+    position: absolute;
+    width: 315px;
+    height: 235px;
+    z-index: 4;
+    bottom: 2;
+    left: 2;
+}
