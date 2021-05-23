@@ -183,9 +183,32 @@ if($whatInfo == "addRaceTime")
 // NEW WMA ENTRY CODE - START
         
         
-        // need to check the runner is 35 or over, if not, skip this section of code
-        $sqlCheckRunnerAgeOver35 = "SELECT tblRunners.RunnerID FROM tblRunners WHERE tblRunners.RunnerID = $txtRunnerID[0] AND (YEAR(CURDATE()) - YEAR(tblRunners.runnerDOB) - 1) >= 35";
-        
+        // need to check the runner is 35 or over on race day, if not, skip this section of code
+        $sqlCheckRunnerAgeOver35 = "SELECT tblRunners.RunnerID
+	,tblRunners.RunnerFirstName
+	,tblRunners.RunnerSurname
+	,tblRunners.RunnerSex
+	,tblRaceTimes.RaceID
+	,FLOOR(DATEDIFF((
+				SELECT tblraces.RaceDate
+				FROM tblraces
+				WHERE RaceID = $txtRaceID[0]
+				), RunnerDOB) / 365.25) AS AgeAtRaceStart
+FROM tblRunners
+LEFT JOIN tblRaceTimes ON tblRunners.RunnerID = tblRaceTimes.RunnerID
+	AND tblRaceTimes.RaceID = $txtRaceID[0]
+WHERE tblRunners.RunnerID = $txtRunnerID[0]
+	AND tblWMA.WMADistance = (
+		SELECT (tblRaces.RaceDist / 1000) AS RaceDistKmToM
+		FROM tblRaces
+		WHERE RaceID = $txtRaceID[0]
+		)
+    AND FLOOR(DATEDIFF((
+				SELECT tblraces.RaceDate
+				FROM tblraces
+				WHERE RaceID = $txtRaceID[0]
+				), RunnerDOB) / 365.25) >= 35";
+				
         $resultAgeCheck = mysqli_query($conn,$sqlCheckRunnerAgeOver35);
         
         // if no rows are returned with the above query, it means the runner isn't old enough to be WMA eligible
