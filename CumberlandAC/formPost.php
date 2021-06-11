@@ -190,8 +190,8 @@ if($whatInfo == "addRaceTime")
 	,tblRunners.RunnerSex
 	,tblRaceTimes.RaceID
 	,FLOOR(DATEDIFF((
-				SELECT tblraces.RaceDate
-				FROM tblraces
+				SELECT tblRaces.RaceDate
+				FROM tblRaces
 				WHERE RaceID = $txtRaceID[0]
 				), RunnerDOB) / 365.25) AS AgeAtRaceStart
 FROM tblRunners
@@ -199,8 +199,8 @@ LEFT JOIN tblRaceTimes ON tblRunners.RunnerID = tblRaceTimes.RunnerID
 	AND tblRaceTimes.RaceID = $txtRaceID[0]
 WHERE tblRunners.RunnerID = $txtRunnerID[0]
     AND FLOOR(DATEDIFF((
-				SELECT tblraces.RaceDate
-				FROM tblraces
+				SELECT tblRaces.RaceDate
+				FROM tblRaces
 				WHERE RaceID = $txtRaceID[0]
 				), RunnerDOB) / 365.25) >= 35";
 				
