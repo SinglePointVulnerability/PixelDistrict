@@ -1,4 +1,4 @@
---This script must be copied and executed in one go in phpMyAdmin
+-- This script must be copied and executed in one go in phpMyAdmin
 -- --The temporary table only exists in one session and cannot be accessed unless it is ran this way
 CREATE TEMPORARY TABLE tempTblWMA (
 	ID INT auto_increment PRIMARY KEY
@@ -30,9 +30,9 @@ SELECT tblRunners.RunnerID
 	,tblRunners.RunnerSex
 	,tblRaceTimes.RaceID
 	,FLOOR(DATEDIFF((
-				SELECT tblraces.RaceDate
-				FROM tblraces
-				WHERE RaceID = 124
+				SELECT tblRaces.RaceDate
+				FROM tblRaces
+				WHERE RaceID = 127
 				), RunnerDOB) / 365.25) AS AgeAtRaceStart
 	,tblWMA.WMAFactor
 	,tblRaceTimes.RaceTime
@@ -40,23 +40,23 @@ SELECT tblRunners.RunnerID
 FROM tblRunners
 LEFT JOIN tblWMA ON (
 		FLOOR(DATEDIFF((
-					SELECT tblraces.RaceDate
-					FROM tblraces
-					WHERE RaceID = 124
+					SELECT tblRaces.RaceDate
+					FROM tblRaces
+					WHERE RaceID = 127
 					), RunnerDOB) / 365.25)
 		) = tblWMA.WMAAge
 	AND tblRunners.RunnerSex = tblWMA.WMASex
 LEFT JOIN tblRaceTimes ON tblRunners.RunnerID = tblRaceTimes.RunnerID
-	AND tblRaceTimes.RaceID = 124
+	AND tblRaceTimes.RaceID = 127
 WHERE tblRunners.RunnerID IN (
 		SELECT tblWMARaceTimes.RunnerID
 		FROM tblWMARaceTimes
-		WHERE RaceID = 124
+		WHERE RaceID = 127
 		)
 	AND tblWMA.WMADistance = (
 		SELECT (tblRaces.RaceDist / 1000) AS RaceDistKmToM
 		FROM tblRaces
-		WHERE RaceID = 124
+		WHERE RaceID = 127
 		);
 
 UPDATE tblWMARaceTimes AS dest
