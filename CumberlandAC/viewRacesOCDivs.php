@@ -27,6 +27,8 @@
 
     $sqlGetOpenChampSprintRaces = "select RaceID, RaceDate, RaceName from tblRaces WHERE RaceCode IN (1,9) AND RaceDate BETWEEN '$RaceYear-01-01' AND '$RaceYear-12-31' ORDER BY RaceDate";
 
+    $sqlGetOpenChampSprintMedRaces = "select RaceID, RaceDate, RaceName from tblRaces WHERE RaceCode IN (32) AND RaceDate BETWEEN '$RaceYear-01-01' AND '$RaceYear-12-31' ORDER BY RaceDate";
+
     $sqlGetOpenChampMiddleRaces = "select RaceID, RaceDate, RaceName from tblRaces WHERE RaceCode IN (2) AND RaceDate BETWEEN '$RaceYear-01-01' AND '$RaceYear-12-31' ORDER BY RaceDate";
 
     $sqlGetOpenChampLongRaces = "select RaceID, RaceDate, RaceName from tblRaces WHERE RaceCode IN (4) AND RaceDate BETWEEN '$RaceYear-01-01' AND '$RaceYear-12-31' ORDER BY RaceDate";
@@ -120,6 +122,33 @@ echo "<th class = \"tblTimesPointsOuterSpacer\"></th>";
     }
     else {
         echo "Oops! I couldn't find any open championship sprint distance races for $RaceYear!";
+    }
+
+    // Get the sprintMed races
+    if(mysqli_multi_query($conn,$sqlGetOpenChampSprintMedRaces))
+    {
+        do{
+            if($result=mysqli_store_result($conn)){
+                while($row=mysqli_fetch_assoc($result)){
+                    // rearrange the race date from SQL format
+                    $row["RaceDate"] = date("d-m-Y",strtotime($row["RaceDate"]));
+                    // give the date '/' instead of '-'
+                    $row["RaceDate"] = str_replace("-", "/", $row["RaceDate"]);
+                    
+                    // combine the rows into a multi-dimensional array
+                    $arrRaceIDs[] = $row["RaceID"];
+                    
+                    echo "<th class='rotate'><div class='fntSprint'><span>" . $row['RaceName'] . "<br>" . $row['RaceDate'] . "</span></div></th>";
+                }
+                mysqli_free_result($result);
+            }
+            if(mysqli_more_results($conn)) {
+                // do nothing
+            }
+        } while(mysqli_more_results($conn) && mysqli_next_result($conn));
+    }
+    else {
+        echo "Oops! I couldn't find any open championship sprintMed distance races for $RaceYear!";
     }
 
     // Get the middle races

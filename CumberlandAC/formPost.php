@@ -1176,7 +1176,8 @@ function champRacePoints($RID)
         case 1:
         case 2:
         case 4:
-            // Race codes 1, 2, and 4 are for Open Champ races only. So procedure is identical.
+		case 32:
+            // Race codes 1, 2, 4 and 32 are for Open Champ races only. So procedure is identical.
             //
             // re-use the procedure by assigning a number to each type of open championship:
             //     1: General open championship
@@ -1404,6 +1405,44 @@ function champTotalPoints($RID)
 /* OpenChamp Long distance */   
 
 
+/* OpenChamp SprintMed distance */
+    if($RaceCode == "32")
+    {
+        $sqlSelectRunners = 'SELECT DISTINCT RunnerID FROM tblOpenChampDivGenRacePoints WHERE RaceID IN (Select RaceID FROM tblRaces WHERE RaceCode = 32 AND ChampYear=' . date("Y") . ')';
+    
+        $result = mysqli_query($conn,$sqlSelectRunners);
+    
+        if(mysqli_num_rows($result) > 0)
+        {
+            // output data of each row
+            while($row = $result->fetch_assoc())
+            {
+                $RunnerID = $row["RunnerID"];
+
+                $sqlUpdatePoints = sprintf('CALL proc_openChamp_sprintMed_points(%1$s,%2$s);',$RunnerID, $RID);
+
+                $result2 = mysqli_query($conn,$sqlUpdatePoints);
+                
+                $sqlUpdatePoints2 = sprintf('CALL proc_openChamp_sprintMed_Divs_top2(%1$s,%2$s);',$RunnerID, $RID);
+                
+                $result3 = mysqli_query($conn,$sqlUpdatePoints2);
+
+                $sqlUpdatePoints3 = sprintf('CALL proc_openChamp_WMA_sprintMed_top2(%1$s,%2$s);',$RunnerID, $RID);
+                
+                $result4 = mysqli_query($conn,$sqlUpdatePoints3);
+
+                $sqlUpdatePoints4 = sprintf('CALL proc_openChamp_ladies_long_top2(%1$s,%2$s);',$RunnerID, $RID);
+                
+                $result5 = mysqli_query($conn,$sqlUpdatePoints4);
+            }
+        }           
+        else
+        {
+            // Couldn't find any runners or times for this race!
+            echo "Couldn't find any runners or times for this Open Championship SprintMed distance race! : " . $sqlSelectRunnersPoints . " or there was an ERROR: " . $mysqli->errno;
+        }        
+    }
+/* OpenChamp SprintMed distance */   
     
     
 /*
