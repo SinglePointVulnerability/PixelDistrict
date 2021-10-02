@@ -32,7 +32,7 @@ SELECT tblRunners.RunnerID
 	,FLOOR(DATEDIFF((
 				SELECT tblRaces.RaceDate
 				FROM tblRaces
-				WHERE RaceID = 127
+				WHERE RaceID = 123
 				), RunnerDOB) / 365.25) AS AgeAtRaceStart
 	,tblWMA.WMAFactor
 	,tblRaceTimes.RaceTime
@@ -42,21 +42,21 @@ LEFT JOIN tblWMA ON (
 		FLOOR(DATEDIFF((
 					SELECT tblRaces.RaceDate
 					FROM tblRaces
-					WHERE RaceID = 127
+					WHERE RaceID = 123
 					), RunnerDOB) / 365.25)
 		) = tblWMA.WMAAge
 	AND tblRunners.RunnerSex = tblWMA.WMASex
 LEFT JOIN tblRaceTimes ON tblRunners.RunnerID = tblRaceTimes.RunnerID
-	AND tblRaceTimes.RaceID = 127
+	AND tblRaceTimes.RaceID = 123
 WHERE tblRunners.RunnerID IN (
 		SELECT tblWMARaceTimes.RunnerID
 		FROM tblWMARaceTimes
-		WHERE RaceID = 127
+		WHERE RaceID = 123
 		)
 	AND tblWMA.WMADistance = (
 		SELECT (tblRaces.RaceDist / 1000) AS RaceDistKmToM
 		FROM tblRaces
-		WHERE RaceID = 127
+		WHERE RaceID = 123
 		);
 
 UPDATE tblWMARaceTimes AS dest

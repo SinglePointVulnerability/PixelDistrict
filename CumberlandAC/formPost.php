@@ -230,16 +230,72 @@ WHERE tblRunners.RunnerID = $txtRunnerID[0]
             // **** when you test this out in future, make sure the runner has a DoB set!!! ****
             
             while($row=mysqli_fetch_assoc($resultWMACheck)){
-                $sqlWMA = "UPDATE tblWMARaceTimes SET WMARunnerLevel = (
-            SELECT (SELECT tblWMA.WMAFactor FROM tblWMA WHERE tblWMA.WMADistance = (SELECT (tblRaces.RaceDist/1000) FROM tblRaces WHERE tblRaces.RaceID = tblRaceTimes.RaceID) AND tblWMA.WMASex = tblRunners.RunnerSex AND tblWMA.WMAAge = (YEAR(CURDATE()) - YEAR(tblRunners.runnerDOB) - 1) ) AS WMARunnerLevel FROM tblRunners JOIN tblRaceTimes ON tblRunners.RunnerID = tblRaceTimes.RunnerID WHERE tblRaceTimes.RaceID='" . $row['RaceID'] . "' AND tblRaceTimes.RunnerID='" . $row['RunnerID'] . "') WHERE tblWMARaceTimes.RaceID='" . $row['RaceID'] . "' AND tblWMARaceTimes.RunnerID='" . $row['RunnerID'] . "';
+                $sqlWMA = "CREATE TEMPORARY TABLE tempTblWMA (
+	ID INT auto_increment PRIMARY KEY
+	,RunnerID INT
+	,RunnerFirstName VARCHAR(32)
+	,RunnerSurname VARCHAR(32)
+	,RunnerSex VARCHAR(1)
+	,RaceID INT
+	,AgeAtRaceStart INT
+	,WMAFactor DECIMAL(6, 5)
+	,RaceTime TIME
+	,WMAAdjustedTime TIME
+	);
 
-            UPDATE tblWMARaceTimes SET WMARaceTime = (
-            SELECT TIME_FORMAT(SEC_TO_TIME(TIME_TO_SEC(tblRaceTimes.RaceTime) * (SELECT tblWMA.WMAFactor FROM tblWMA WHERE tblWMA.WMADistance = (SELECT (tblRaces.RaceDist/1000) FROM tblRaces WHERE tblRaces.RaceID = tblRaceTimes.RaceID) AND tblWMA.WMASex = tblRunners.RunnerSex AND tblWMA.WMAAge = (YEAR(CURDATE()) - YEAR(tblRunners.runnerDOB) - 1))),'%H:%i:%s') AS WMARaceTime FROM tblRunners JOIN tblRaceTimes ON tblRunners.RunnerID = tblRaceTimes.RunnerID WHERE tblRaceTimes.RaceID='" . $row['RaceID'] . "' AND tblRaceTimes.RunnerID='" . $row['RunnerID'] . "') WHERE tblWMARaceTimes.RaceID='" . $row['RaceID'] . "' AND tblWMARaceTimes.RunnerID='" . $row['RunnerID'] . "';
-            
-            UPDATE tblWMARaceTimes SET RaceTime = (
-            SELECT tblRaceTimes.RaceTime FROM tblRunners JOIN tblRaceTimes ON tblRunners.RunnerID = tblRaceTimes.RunnerID WHERE tblRaceTimes.RaceID='" . $row['RaceID'] . "' AND tblRaceTimes.RunnerID='" . $row['RunnerID'] . "') WHERE tblWMARaceTimes.RaceID='" . $row['RaceID'] . "' AND tblWMARaceTimes.RunnerID='" . $row['RunnerID'] . "';
-            
-            ";
+INSERT INTO tempTblWMA (
+	RunnerID
+	,RunnerFirstName
+	,RunnerSurname
+	,RunnerSex
+	,RaceID
+	,AgeAtRaceStart
+	,WMAFactor
+	,RaceTime
+	,WMAAdjustedTime
+	)
+SELECT tblRunners.RunnerID
+	,tblRunners.RunnerFirstName
+	,tblRunners.RunnerSurname
+	,tblRunners.RunnerSex
+	,tblRaceTimes.RaceID
+	,FLOOR(DATEDIFF((
+				SELECT tblRaces.RaceDate
+				FROM tblRaces
+				WHERE RaceID = '" . $txtRaceID[0] . "'
+				), RunnerDOB) / 365.25) AS AgeAtRaceStart
+	,tblWMA.WMAFactor
+	,tblRaceTimes.RaceTime
+	,SEC_TO_TIME(tblWMA.WMAFactor * TIME_TO_SEC(tblRaceTimes.RaceTime)) AS WMAAdjustedTime
+FROM tblRunners
+LEFT JOIN tblWMA ON (
+		FLOOR(DATEDIFF((
+					SELECT tblRaces.RaceDate
+					FROM tblRaces
+					WHERE RaceID = '" . $txtRaceID[0] . "'
+					), RunnerDOB) / 365.25)
+		) = tblWMA.WMAAge
+	AND tblRunners.RunnerSex = tblWMA.WMASex
+LEFT JOIN tblRaceTimes ON tblRunners.RunnerID = tblRaceTimes.RunnerID
+	AND tblRaceTimes.RaceID = '" . $txtRaceID[0] . "'
+WHERE tblRunners.RunnerID IN (
+		SELECT tblWMARaceTimes.RunnerID
+		FROM tblWMARaceTimes
+		WHERE RaceID = '" . $txtRaceID[0] . "'
+		)
+	AND tblWMA.WMADistance = (
+		SELECT (tblRaces.RaceDist / 1000) AS RaceDistKmToM
+		FROM tblRaces
+		WHERE RaceID = '" . $txtRaceID[0] . "'
+	AND tblRaceTimes.RunnerID='" . $txtRunnerID[0] . "'
+		);
+
+UPDATE tblWMARaceTimes AS dest
+INNER JOIN tempTblWMA AS source ON dest.RunnerID = source.RunnerID
+	AND dest.RaceID = source.RaceID
+
+SET dest.WMARaceTime = source.WMAAdjustedTime
+	,dest.WMARunnerLevel = source.WMAFactor";
             }
         }
         else
@@ -247,8 +303,42 @@ WHERE tblRunners.RunnerID = $txtRunnerID[0]
             echo "<br><br>result NOT returned in WMA table. records to be INSERTED.<br><br>";
             
             //creates the WMARaceTimes table entry for the WMA procedures to process
-            $sqlWMA = "INSERT INTO tblWMARaceTimes (RaceID,RunnerID,RaceTime,WMARunnerLevel,WMARaceTime)
-SELECT tblRaceTimes.RaceID, tblRaceTimes.RunnerID, tblRaceTimes.RaceTime, (SELECT tblWMA.WMAFactor FROM tblWMA WHERE tblWMA.WMADistance = (SELECT (tblRaces.RaceDist/1000) FROM tblRaces WHERE tblRaces.RaceID = tblRaceTimes.RaceID) AND tblWMA.WMASex = tblRunners.RunnerSex AND tblWMA.WMAAge = (YEAR(CURDATE()) - YEAR(tblRunners.runnerDOB) - 1) ) AS WMARunnerLevel, TIME_FORMAT(SEC_TO_TIME(TIME_TO_SEC(tblRaceTimes.RaceTime) * (SELECT tblWMA.WMAFactor FROM tblWMA WHERE tblWMA.WMADistance = (SELECT (tblRaces.RaceDist/1000) FROM tblRaces WHERE tblRaces.RaceID = tblRaceTimes.RaceID) AND tblWMA.WMASex = tblRunners.RunnerSex AND tblWMA.WMAAge = (YEAR(CURDATE()) - YEAR(tblRunners.runnerDOB) - 1))),'%H:%i:%s') AS WMARaceTime FROM tblRunners JOIN tblRaceTimes ON tblRunners.RunnerID = tblRaceTimes.RunnerID WHERE tblRaceTimes.RaceID='" . $txtRaceID[0] . "' AND tblRaceTimes.RunnerID='" . $txtRunnerID[0] . "'";
+            $sqlWMA = "INSERT INTO tblWMARaceTimes (
+	RunnerID
+	,RaceID
+	,WMARunnerLevel
+	,RaceTime
+	,WMARaceTime
+	)
+SELECT tblRunners.RunnerID
+	,tblRaceTimes.RaceID
+	,tblWMA.WMAFactor
+	,tblRaceTimes.RaceTime
+	,SEC_TO_TIME(tblWMA.WMAFactor * TIME_TO_SEC(tblRaceTimes.RaceTime)) AS WMAAdjustedTime
+FROM tblRunners
+LEFT JOIN tblWMA ON (
+		FLOOR(DATEDIFF((
+					SELECT tblRaces.RaceDate
+					FROM tblRaces
+					WHERE tblRaces.RaceID = '" . $txtRaceID[0] . "'
+					), RunnerDOB) / 365.25)
+		) = tblWMA.WMAAge
+	AND tblRunners.RunnerSex = tblWMA.WMASex
+LEFT JOIN tblRaceTimes ON tblRunners.RunnerID = tblRaceTimes.RunnerID
+	AND tblRaceTimes.RaceID = '" . $txtRaceID[0] . "'
+LEFT JOIN tblRaces ON tblRaceTimes.RaceID = tblRaces.RaceID
+WHERE FLOOR(DATEDIFF((
+				SELECT tblRaces.RaceDate
+				FROM tblRaces
+				WHERE tblRaces.RaceID = '" . $txtRaceID[0] . "'
+				), RunnerDOB) / 365.25) >= 35
+	AND tblWMA.WMADistance = (
+		SELECT (tblRaces.RaceDist / 1000) AS RaceDistKmToM
+		FROM tblRaces
+		WHERE tblRaces.RaceID = '" . $txtRaceID[0] . "'
+		)
+	AND tblRaces.RaceID = '" . $txtRaceID[0] . "'
+	AND tblRaceTimes.RunnerID='" . $txtRunnerID[0] . "'";
         }            
         
         // execute update or insert query for WMA tables
