@@ -34,8 +34,9 @@ else if ($login_user=='under_dev')
     require 'DBconn.php';
 
     //load all open champ races from the current year into an array
-    $sqlOpenChamp = "SELECT RaceID, RaceName, RaceCode FROM tblRaces WHERE RaceDate BETWEEN '" . date("Y") . "-01-01' AND '" . date("Y") . "-12-31' AND RaceCode IN(1,2,4,9) ORDER BY field(RaceCode,1,9,2,4), RaceDate ASC";
+    $sqlOpenChamp = "SELECT RaceID, RaceName, RaceCode FROM tblRaces WHERE RaceDate BETWEEN '" . date("Y") . "-01-01' AND '" . date("Y") . "-12-31' AND RaceCode IN(1,2,4,9,32) ORDER BY field(RaceCode,1,9,32,2,4), RaceDate ASC";
     $intOpenChampSprintCount=0;
+    $intOpenChampSprintMedCount=0;
     $intOpenChampMiddleCount=0;
     $intOpenChampLongCount=0;
 
@@ -82,6 +83,18 @@ else if ($login_user=='under_dev')
                 }
                 $intOpenChampSprintCount++;
             }
+            if($row["RaceCode"]=='32') {
+                if($intOpenChampSprintMedCount==0){
+                    // finish the previous line of JavaScript and output the first new line of JavaScript 
+                    echo "], " .
+                         "\n'SprintMed Distance': [\"" . $row["RaceID"] . "_" . $row["RaceName"] . "\"";
+                }
+                else{
+                    // output the next line(s) of JavaScript
+                    echo ", \"" . $row["RaceID"] . "_" . $row["RaceName"] . "\"";
+                }
+                $intOpenChampSprintMedCount++;
+            }
             if($row["RaceCode"]=='2') {
                 if($intOpenChampMiddleCount==0){
                     // finish the previous line of JavaScript and output the first new line of JavaScript 
@@ -114,6 +127,7 @@ else if ($login_user=='under_dev')
     //the output following this chunk of code should look like this:
     /*        
         'Sprint Distance': ['race1ID_name', 'race2ID_name'],
+        'SprintMed Distance': ['race1ID_name', 'race2ID_name'],
         'Middle Distance': ['race1ID_name', 'race2ID_name'],
         'Long Distance': ['race1ID_name', 'race2ID_name']
     */
