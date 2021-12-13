@@ -79,6 +79,9 @@
 		  font-size: 13px;
 		  background-color: #404c26;
 		}
+		.expanded-row-content a {
+			color: #f0f0f0;
+		}
 
 		.hide-row {
 		  display: none;
