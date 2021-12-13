@@ -4,9 +4,11 @@
 <html>
 	<head>
 	  <style>
+	  h1 {
+			color: #ffffff;
+	  }
 		table {
 		  border: none;
-		  border-top: 1px solid #EEEEEE;
 		  font-family: arial, sans-serif;
 		  border-collapse: collapse;
 		}
@@ -19,16 +21,39 @@
 
 		td,
 		th {
-		  border: 1px solid #EEEEEE;
-		  border-top: none;
-		  text-align: left;
 		  padding: 8px;
-		  color: #363D41;
+		  text-align: left;
 		  font-size: 14px;
 		}
 
+		table.charityRanked {
+			color: #ffffff;
+		}
+
+		table.votingForm {
+			border:none;
+			border-top: none;
+		}
+		table.votingForm tr td {
+			background-color: #dadbd8;
+			color: #f23941;
+		}
+		table.votingForm th {
+			background-color: #f8f9f3;
+			color: #f23941;
+		}
+
+	
+		table.charityBlurb {
+			color: #ffffff;
+		}
+	
+		table.charityBlurb th {
+		  background-color: #494949;
+		}
+		
 		table.charityBlurb tr {
-		  background-color: #fff;
+		  background-color: #2e2e2e;
 		  border: none;
 		  cursor: pointer;
 		  display: grid;
@@ -38,11 +63,11 @@
 
 		tr.charityBlurb:first-child:hover {
 		  cursor: default;
-		  background-color: #fff;
+		  background-color: #951d26;
 		}
 
 		tr.charityBlurb:hover {
-		  background-color: #EEF4FD;
+		  background-color: #406d36;
 		}
 
 		.expanded-row-content {
@@ -50,9 +75,9 @@
 		  display: grid;
 		  grid-column: 1/-1;
 		  justify-content: flex-start;
-		  color: #AEB1B3;
+		  color: #ffffff;
 		  font-size: 13px;
-		  background-color: #fff;
+		  background-color: #404c26;
 		}
 
 		.hide-row {
@@ -60,11 +85,11 @@
 		}
 	  </style>
 	</head>
-	<body>
+	<body style="background-color:#951d26">
 
 <table class="charityRanked">
 	<tr>
-		<th style="font-size:1.5em;">Cumberland AC - Charity of the Year, 2021 - ranked by votes (top three on display only)</th>
+		<th><h1>Cumberland AC - Charity of the Year, 2022 - ranked by votes (top three on display only)</h1></th>
 	</tr>
 	<tr>
 		<td style="font-size:0.9em;">
@@ -73,27 +98,50 @@
 			$today = time();
 
 			//B: RECORDS Date And Time OF YOUR EVENT
-			$event = mktime(17,0,0,12,13,2020); //this is actually 4pm, however IONOS servers are 1 hour ahead
+			$event = mktime(17,0,0,12,25,2021); //this is actually 4pm, however IONOS servers are 1 hour ahead
 
-			//C: COMPUTES THE DAYS UNTIL THE EVENT.
+			//C: COMPUTES THE HOURS UNTIL THE EVENT.
 			$countdown = ceil(($event-$today)/3600);
-			if ($countdown > 1)
+			if ($countdown>24)
+			{
+				//D: DISPLAYS COUNTDOWN UNTIL EVENT
+				if (floor($countdown / 24) == 1)
+				{
+					$dayDays = "day";
+				}
+				else
+				{
+					$dayDays = "days";
+				}
+				
+				if (($countdown % 24) == 1)
+				{
+					$hourHours = "hour";
+				}
+				else
+				{
+					$hourHours = "hours";
+				}
+				
+				echo "<i> " . floor($countdown / 24) . " $dayDays, " . ($countdown % 24) . " $hourHours until voting closes for <b>CAC Charity of the year, 2022 (Saturday 25th Dec at 4pm)</b></i>";
+			}
+			elseif ($countdown > 1)
 			{
 				$hourHours = "hours";
 				//D: DISPLAYS COUNTDOWN UNTIL EVENT
-				echo "<i>Less than $countdown $hourHours until voting closes for <b>CAC Charity of the year, 2021 (Sunday 13th Dec at 4pm)</b></i>";
+				echo "<i>Less than $countdown $hourHours until voting closes for <b>CAC Charity of the year, 2021 (Saturday 25th Dec at 4pm)</b></i>";
 
 			}
 			elseif (($countdown <= 1) && ($countdown > 0))
 			{
 				$hourHours = "hour";
 				//D: DISPLAYS COUNTDOWN UNTIL EVENT
-				echo "<i>Less than $countdown $hourHours until voting closes for <b>CAC Charity of the year, 2021 (Sunday 13th Dec at 4pm)</b></i>";
+				echo "<i>Less than $countdown $hourHours until voting closes for <b>CAC Charity of the year, 2021 (Saturday 25th Dec at 4pm)</b></i>";
 			}
 			else
 			{
 				//D: DISPLAYS COUNTDOWN UNTIL EVENT
-				echo "<i>Sorry! Voting closed for <b>CAC Charity of the year, 2021 (Sunday 13th Dec at 4pm)</b></i>";
+				echo "<i>Sorry! Voting closed for <b>CAC Charity of the year, 2021 (Saturday 25th Dec at 4pm)</b></i>";
 			}
 		?>
 		</td>
@@ -291,7 +339,17 @@
 			// if statement to check if this is a reloaded page with form details to process
 			print "<br><br><br><br><br><br><br>\n\n";
 			print "<form id=\"firstForm\" name=\"firstForm\" method=\"POST\" action=\"CACcharity.php\">\n\n";
+			print "<table class=\"votingForm\">\n";
+			print "<tr >\n";
+			print "<th colspan=\"2\">\n";
+			print "<h2>Voting Form</h2>";
+			print "</th>\n";
+			print "</tr>\n";
+			print "<tr>\n";
+			print "<td>\n";
 			print "<label for=\"txtCharity\">Vote for a charity:</label>\n\n";
+			print "</td>\n";
+			print "<td>\n";
 			print "<select name=\"txtCharity\" id=\"txtCharity\">\n\n";
 			
 			$sqlCharityList = "SELECT * FROM tblcharities;";
@@ -303,8 +361,24 @@
 				print "<option value=\"" . $row['CharityID'] . "\">" . $row['CharityTitle'] . "</option>\n";
 			}
 			print "</select>\n\n";
-			print "<br>Email: <input type=\"text\" id=\"txtEmail\" name=\"txtEmail\">\n\n";
-			print "<br><br><input type=\"submit\" id=\"Submit\" name=\"Submit\" value=\"Submit my vote\">\n\n";
+			print "</td>\n";
+			print "</tr>\n";
+			print "<tr>\n";
+			print "<td>\n";
+			print "Email:\n";
+			print "</td>\n";
+			print "<td>\n";
+			print "<input type=\"text\" id=\"txtEmail\" name=\"txtEmail\">\n\n";
+			print "</td>\n";
+			print "</tr>\n";
+			print "<tr>\n";
+			print "<td>\n";
+			print "</td>\n";
+			print "<td>\n";
+			print "<input type=\"submit\" id=\"Submit\" name=\"Submit\" value=\"Submit my vote\">\n\n";
+			print "</td>\n";
+			print "</tr>\n";
+			print "</table>\n";
 			print "<input type = \"hidden\" id=\"whichForm\" name=\"whichForm\" value=\"firstForm\">\n\n";
 			print "</form>\n\n";
 		}
@@ -344,7 +418,7 @@ function displayCharity($CharityID) {
 
 		?>
 	<br><br>
-	<h2>Read a little more about the charities here:</h2>
+	<h1>Read a little more about the charities here:</h1>
 	  <table class="charityBlurb">
 		<tr>
 		  <th>Logo</th>
@@ -366,13 +440,6 @@ function displayCharity($CharityID) {
 		  <br><br>For more info please visit <a href="http://www.every-life-matters.org.uk">Every-Life-Matters.org.uk</a></td>
 		</tr>
 		<tr class="charityBlurb" onClick='toggleRow(this)'>
-		  <td><img src="img\HAtHme50px.png" /></td>
-		  <td>Hospice at Home West Cumbria<br>(click for more)</td>
-		  <td class='expanded-row-content hide-row'><img src="img\HAtHme150px.png" />Hospice at Home West Cumbria 
-			provides high quality, palliative and end of life care to people living in West Cumbria. 
-			<br><br>For more info please visit <a href="http://www.hospiceathomewestcumbria.org.uk">HospiceAtHomeWestCumbria.org.uk</a></td>
-		</tr>
-		<tr class="charityBlurb" onClick='toggleRow(this)'>
 		  <td><img src="img\TeaEvi50px.png" /></td>
 		  <td>Team Evie<br>(click for more)</td>
 		  <td class='expanded-row-content hide-row'><img src="img\TeaEvi150px.png" />Team Evie help sick children and 
@@ -387,33 +454,57 @@ function displayCharity($CharityID) {
 			patient comfort whilst they are receiving treatment.</td>
 		</tr>
 		<tr class="charityBlurb" onClick='toggleRow(this)'>
-		  <td><img src="img\CKDCF50px.png" /></td>
-		  <td>Charley and Kathleen Dunnary Children's Fund<br>(click for more)</td>
-		  <td class='expanded-row-content hide-row'><img src="img\CKDCF150px.png" />The charity provides grants and 
-			charitable donations to organisations that directly benefit local children in need.
-			<br><br>For more info please visit <a href="http://www.ckdcf.org">CKDCF.org</a></td>
-		</tr>
-		<tr class="charityBlurb" onClick='toggleRow(this)'>
 		  <td><img src="img\CalTru50px.png" /></td>
 		  <td>Calvert Trust Lake District<br>(click for more)</td>
 		  <td class='expanded-row-content hide-row'><img src="img\CalTru150px.png" />The charity provides dedicated 
 			facilities so that disabled guests can enjoy outdoor activities in a safe and accessible environment.
 			<br><br>For more info please visit <a href="http://www.calvertlakes.org.uk">CalvertLakes.org.uk</a></td>
 		</tr>
-<!--  		<tr class="charityBlurb" onClick='toggleRow(this)'>
-		  <td><img src="img\MinWes50px.png" /></td>
-		  <td>Mind (West Cumbria)<br>(click for more)</td>
-		  <td class='expanded-row-content hide-row'><img src="img\MinWes150px.png" />The charity offers a variety of 
-			services to support local residents in Allerdale and Copeland with mental health and adversity issues.
-			<br><br>For more info please visit <a href="http://www.mindincumbria.org.uk/region/westcumbria.aspx">MindInCumbria.org.uk (West Cumbria)</a></td>
-		</tr> -->
 		<tr class="charityBlurb" onClick='toggleRow(this)'>
-		  <td><img src="img\SWYP50px.png" /></td>
-		  <td>South Workington Youth Partnership<br>(click for more)</td>
-		  <td class='expanded-row-content hide-row'><img src="img\SWYP150px.png" />The charity provides services to 
-			children of all ages in Workington and work with some of the most under privileged kids in the area. 
-			They also provide disability support to children and adults, and provide a food bank service.
-			<br><br>For more info please visit <a href="http://www.moorclosecommunitycentre.co.uk/swyp">MoorcloseCommunityCentre.co.uk/SWYP</a></td>
+			<td><img src="img\BldBks50px.png" /></td>
+			<td>Blood Bikes Cumbria<br>(Click for more)</td>
+			<td class='expanded-row-content hide-row'><img src="img\BldBks150px.png" />Blood Bikes Cumbria deliver essential blood, urgent medical supplies,
+			free of charge and out of hours for the North Cumbria Integrated Care NHS Foundation Trust between premises in
+			North and West Cumbria and hospitals/laboratories in the Newcastle area. 
+			<br><br>For more info please visit <a href="http://www.bloodbikescumbria.org.uk">BloodBikesCumbria.org.uk</a></td>
+		</tr>
+		<tr class="charityBlurb" onClick='toggleRow(this)'>
+			<td><img src="img\WhtFrs50px.png" /></td>
+			<td>Whitehaven First Responders<br>(Click for more)</td>
+			<td class='expanded-row-content hide-row'><img src="img\WhtFrs150px.png" />Whitehaven First Responders support the North West Ambulance Service
+			(NWAS) by attending 999 calls to provide emergency first aid. They attend calls such as diabetics, fitting, breathing difficulties, chest pain
+			and cardiac arrests. They help to take the strain of the ambulance service and speed up the response times during busy periods.</td>
+		</tr>
+		<tr class="charityBlurb" onClick='toggleRow(this)'>
+			<td><img src="img\FrnMyf50px.png" /></td>
+			<td>Friends of Mayfield School<br>(Click for more)</td>
+			<td class='expanded-row-content hide-row'><img src="img\FrnMyf150px.png" />Friends of Mayfield Primary School is essentially a Parent Teacher
+			Association which also welcomes involvement from members of the local community. We raise funds in order to supply the school with much-needed
+			equipment and curricular support, as well as those all-important "extras" for the children. We also arrange social events, for children and
+			families, to help build the school community.</td>
+		</tr>
+		<tr class="charityBlurb" onClick='toggleRow(this)'>
+			<td><img src="img\GrtNrt50px.png" /></td>
+			<td>Great North Air Ambulance<br>(Click for more)</td>
+			<td class='expanded-row-content hide-row'><img src="img\GrtNrt150px.png" />Great North Air Ambulance provide air ambulance services across the
+			North-East, Cumbria and North Yorkshire.
+			<br><br>For more info please visit <a href="http://www.greatnorthairambulance.co.uk">GreatNorthAirAmbulance.co.uk</a></td>
+		</tr>
+		<tr class="charityBlurb" onClick='toggleRow(this)'>
+			<td><img src="img\CldHse50px.png" /></td>
+			<td>Calderwood House<br>(Click for more)</td>
+			<td class='expanded-row-content hide-row'><img src="img\CldHse150px.png" />Calderwood House is a hostel in Egremont providing an innovative
+			solution to homelessness. They provide emergency accommodation and support to help homeless people from all walks of life to get back on their
+			feet. 
+			<br><br>For more info please visit <a href="http://www.calderwoodhouse.co.uk">CalderwoodHouse.co.uk</a></td>
+		</tr>
+		<tr class="charityBlurb" onClick='toggleRow(this)'>
+			<td><img src="img\CckMnt50px.png" /></td>
+			<td>Cockermouth Mountain Rescue<br>(Click for more)</td>
+			<td class='expanded-row-content hide-row'><img src="img\CckMnt150px.png" />Cockermouth Mountain Rescue risk their own lives to provide
+			emergency assistance to users of the fells. They mainly operate in the Buttermere, Ennerdale, Lorton and Loweswater valley areas, but also
+			cover the area out to the coast of NW Cumbria. If another team needs their help, in the Lakes or further afield, they will assist.  
+			<br><br>For more info please visit <a href="http://www.cockermouthmrt.org.uk">CockermouthMRT.org.uk</a></td>
 		</tr>
 	  </table>
 
