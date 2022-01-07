@@ -7,7 +7,7 @@ tblOpenChampWMAOverallPoints.ChampionshipID AS ChampionshipID,
 tblOpenChampWMAOverallPoints.ChampYear AS ChampYear
 FROM (tblOpenChampWMAOverallPoints 
        JOIN tblRunners on((tblOpenChampWMAOverallPoints.RunnerID = tblRunners.RunnerID)))
-WHERE (tblOpenChampWMAOverallPoints.ChampYear = YEAR(CURDATE())
+WHERE (tblOpenChampWMAOverallPoints.ChampYear = 2021
        AND tblOpenChampWMAOverallPoints.OpenChampWMAOverallPoints > 0)
 ORDER BY tblRunners.RunnerSex desc,
 tblOpenChampWMAOverallPoints.OpenChampWMAOverallPoints desc

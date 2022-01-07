@@ -18,7 +18,9 @@
         $RaceYear = $_GET['champYear'];
     }
     else {
-        $RaceYear = date("Y");
+		// commented out to have manual year entry in session variable - mitigates year end bug of all race times disappearing
+		//$RaceYear = date("Y");
+		$RaceYear = 2021;
     }
 
     require 'DBconn.php';
@@ -166,7 +168,7 @@
         $sqlGetOpenChampDiv1Runners  = "SELECT * FROM viewopenchamprunners2018 WHERE RunnerDiv = 1 ORDER BY OpenChampDivGenOverallPoints DESC";
     }
     else {
-        if($RaceYear == date("Y"))
+        if($RaceYear == 2021)
         {
             // if it's the current year, the correct divisions will be found in the tblRunners table
             $txtViewOCRunners = "viewopenchamprunners_currentyear";

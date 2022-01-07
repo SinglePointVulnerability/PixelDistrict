@@ -6,7 +6,9 @@
         $RaceYear = $_GET['champYear'];
     }
     else {
-        $RaceYear = date("Y");
+		// commented out to have manual year entry in session variable - mitigates year end bug of all race times disappearing
+		//$RaceYear = date("Y");
+		$RaceYear = 2021;
     }
 ?>
 <div class='tblNavBar'>
@@ -14,7 +16,6 @@
         <tr>
             <td><div class='fontSeeRacePoints'><a href="<?php echo $url; ?>?display=points&champYear=<?php echo $RaceYear; ?>">SEE RACE POINTS</a></div></td>
             <td><div class='fontSeeRaceTimes'><a href="<?php echo $url; ?>?display=times&champYear=<?php echo $RaceYear; ?>">SEE RACE TIMES</a></div></td>
-            <td><div class='fontSeeArchive'><a href="<?php echo $url; ?>?display=times&champYear=2018">SEE 2018</a></div></td>
             <td><div class='fontBack'><a href="index.php?champYear=<?php echo $RaceYear; ?>">BACK</a></div></td>
         </tr>
     </table>

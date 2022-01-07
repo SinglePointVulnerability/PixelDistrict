@@ -23,7 +23,7 @@
     // Note: all dates are stored in reverse in SQL e.g. 2017-12-31 for 31st Dec 2017
     //       so convert dates on this page, before they are stored in the DB
 
-    
+    $iCurrentYear = 2021; //$date("Y");
     
 
     
@@ -1371,7 +1371,7 @@ function champTotalPoints($RID)
         //
         // select all runners who have ran a sprint distance race (1, or 9) for the current year
         // START
-        $sqlSelectRunners = 'SELECT DISTINCT RunnerID FROM tblOpenChampDivGenRacePoints WHERE RaceID IN (Select RaceID FROM tblRaces WHERE RaceCode IN (1,9) AND ChampYear=' . date("Y") . ')';
+        $sqlSelectRunners = 'SELECT DISTINCT RunnerID FROM tblOpenChampDivGenRacePoints WHERE RaceID IN (Select RaceID FROM tblRaces WHERE RaceCode IN (1,9) AND ChampYear=' . $iCurrentYear . ')';
     
         $result = mysqli_query($conn,$sqlSelectRunners);
     
@@ -1418,7 +1418,7 @@ function champTotalPoints($RID)
 /* OpenChamp Middle distance */
     if($RaceCode == "2")
     {
-        $sqlSelectRunners = 'SELECT DISTINCT RunnerID FROM tblOpenChampDivGenRacePoints WHERE RaceID IN (Select RaceID FROM tblRaces WHERE RaceCode = 2 AND ChampYear=' . date("Y") . ')';
+        $sqlSelectRunners = 'SELECT DISTINCT RunnerID FROM tblOpenChampDivGenRacePoints WHERE RaceID IN (Select RaceID FROM tblRaces WHERE RaceCode = 2 AND ChampYear=' . $iCurrentYear . ')';
     
         $result = mysqli_query($conn,$sqlSelectRunners);
     
@@ -1458,7 +1458,7 @@ function champTotalPoints($RID)
 /* OpenChamp Long distance */
     if($RaceCode == "4")
     {
-        $sqlSelectRunners = 'SELECT DISTINCT RunnerID FROM tblOpenChampDivGenRacePoints WHERE RaceID IN (Select RaceID FROM tblRaces WHERE RaceCode = 4 AND ChampYear=' . date("Y") . ')';
+        $sqlSelectRunners = 'SELECT DISTINCT RunnerID FROM tblOpenChampDivGenRacePoints WHERE RaceID IN (Select RaceID FROM tblRaces WHERE RaceCode = 4 AND ChampYear=' . $iCurrentYear . ')';
     
         $result = mysqli_query($conn,$sqlSelectRunners);
     
@@ -1498,7 +1498,7 @@ function champTotalPoints($RID)
 /* OpenChamp SprintMed distance */
     if($RaceCode == "32")
     {
-        $sqlSelectRunners = 'SELECT DISTINCT RunnerID FROM tblOpenChampDivGenRacePoints WHERE RaceID IN (Select RaceID FROM tblRaces WHERE RaceCode = 32 AND ChampYear=' . date("Y") . ')';
+        $sqlSelectRunners = 'SELECT DISTINCT RunnerID FROM tblOpenChampDivGenRacePoints WHERE RaceID IN (Select RaceID FROM tblRaces WHERE RaceCode = 32 AND ChampYear=' . $iCurrentYear . ')';
     
         $result = mysqli_query($conn,$sqlSelectRunners);
     
@@ -1544,7 +1544,7 @@ THE PROCEDURE FOR OVERALL POINTS ISN'T USED
     /* OpenChamp Overall points */
     if($RaceCode == "1" || $RaceCode == "2" || $RaceCode == "4" || $RaceCode == "9")
     {     
-        $sqlSelectRunners = 'SELECT DISTINCT RunnerID FROM tblOpenChampDivGenRacePoints WHERE RaceID IN (Select RaceID FROM tblRaces WHERE RaceCode IN (1,2,4,9) AND ChampYear=' . date("Y") . ')';
+        $sqlSelectRunners = 'SELECT DISTINCT RunnerID FROM tblOpenChampDivGenRacePoints WHERE RaceID IN (Select RaceID FROM tblRaces WHERE RaceCode IN (1,2,4,9) AND ChampYear=' . $iCurrentYear . ')';
     
         $result = mysqli_query($conn,$sqlSelectRunners);
     
@@ -1584,7 +1584,7 @@ THE PROCEDURE FOR OVERALL POINTS ISN'T USED
 /* ShortChamp races */
     if($RaceCode == "8" || $RaceCode == "9")
     {
-        $sqlSelectRunners = 'SELECT DISTINCT RunnerID FROM tblShortChampDivGenRacePoints WHERE RaceID IN (Select RaceID FROM tblRaces WHERE RaceCode IN (8,9) AND ChampYear=' . date("Y") . ')';
+        $sqlSelectRunners = 'SELECT DISTINCT RunnerID FROM tblShortChampDivGenRacePoints WHERE RaceID IN (Select RaceID FROM tblRaces WHERE RaceCode IN (8,9) AND ChampYear=' . $iCurrentYear . ')';
     
         $result = mysqli_query($conn,$sqlSelectRunners);
     
@@ -1615,7 +1615,7 @@ THE PROCEDURE FOR OVERALL POINTS ISN'T USED
 /* Multi-Terrain Challenge races */
     if($RaceCode == "16")
     {
-        $sqlSelectRunners = 'SELECT DISTINCT RunnerID FROM tblMTChallDivGenRacePoints WHERE RaceID IN (Select RaceID FROM tblRaces WHERE RaceCode IN (16) AND ChampYear=' . date("Y") . ')';
+        $sqlSelectRunners = 'SELECT DISTINCT RunnerID FROM tblMTChallDivGenRacePoints WHERE RaceID IN (Select RaceID FROM tblRaces WHERE RaceCode IN (16) AND ChampYear=' . $iCurrentYear . ')';
     
         $result = mysqli_query($conn,$sqlSelectRunners);
     

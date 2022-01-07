@@ -15,7 +15,9 @@ if(isset($_GET['champYear'])) {
     $RaceYear = $_GET['champYear'];
 }
 else {
-    $RaceYear = date("Y");
+	// commented out to have manual year entry in session variable - mitigates year end bug of all race times disappearing
+    //$RaceYear = date("Y");
+	$RaceYear = 2021;
 }   
 
 // SQL Query To Fetch Complete Information Of User

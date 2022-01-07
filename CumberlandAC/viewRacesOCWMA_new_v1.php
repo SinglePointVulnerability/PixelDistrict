@@ -18,7 +18,9 @@
         $RaceYear = $_GET['champYear'];
     }
     else {
-        $RaceYear = date("Y");
+		// commented out to have manual year entry in session variable - mitigates year end bug of all race times disappearing
+		//$RaceYear = date("Y");
+		$RaceYear = 2021;
     }
     require 'DBconn.php';
 
@@ -32,7 +34,7 @@
 
     $sqlGetOpenChampLongRaces = "select RaceID, RaceDate, RaceName from tblRaces WHERE RaceCode IN (4) AND RaceDate BETWEEN '$RaceYear-01-01' AND '$RaceYear-12-31' ORDER BY RaceDate";
 
-    if($RaceYear == date("Y")) {
+    if($RaceYear == 2021) {
         $txtOCWMAView = "viewopenchampwmarunners_currentyear";
     }
     else {

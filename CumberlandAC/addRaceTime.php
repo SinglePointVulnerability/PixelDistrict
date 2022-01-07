@@ -32,9 +32,11 @@ else if ($login_user=='under_dev')
 {
 */
     require 'DBconn.php';
+	
+	$iCurrentYear = 2021; //$date("Y");
 
     //load all open champ races from the current year into an array
-    $sqlOpenChamp = "SELECT RaceID, RaceName, RaceCode FROM tblRaces WHERE RaceDate BETWEEN '" . date("Y") . "-01-01' AND '" . date("Y") . "-12-31' AND RaceCode IN(1,2,4,9,32) ORDER BY field(RaceCode,1,9,32,2,4), RaceDate ASC";
+    $sqlOpenChamp = "SELECT RaceID, RaceName, RaceCode FROM tblRaces WHERE RaceDate BETWEEN '" . $iCurrentYear . "-01-01' AND '" . $iCurrentYear . "-12-31' AND RaceCode IN(1,2,4,9,32) ORDER BY field(RaceCode,1,9,32,2,4), RaceDate ASC";
     $intOpenChampSprintCount=0;
     $intOpenChampSprintMedCount=0;
     $intOpenChampMiddleCount=0;
@@ -42,14 +44,14 @@ else if ($login_user=='under_dev')
 
     //load all short champ races from the current year into an array
     $sqlShortChamp = "SELECT RaceID, RaceName FROM tblRaces " .
-                    "WHERE RaceDate BETWEEN '" . date("Y") . "-01-01' AND '" . date("Y") . "-12-31' " .
+                    "WHERE RaceDate BETWEEN '" . $iCurrentYear . "-01-01' AND '" . $iCurrentYear . "-12-31' " .
                     "AND RaceCode IN (8,9) " .
                     "ORDER BY RaceDate ASC";
     $intShortChampCount=0;
 
     //load all MT Challenge races from the current year into an array
     $sqlMTChall = "SELECT RaceID, RaceName FROM tblRaces " .
-                    "WHERE RaceDate BETWEEN '" . date("Y") . "-01-01' AND '" . date("Y") . "-12-31' " .
+                    "WHERE RaceDate BETWEEN '" . $iCurrentYear . "-01-01' AND '" . $iCurrentYear . "-12-31' " .
                     "AND RaceCode IN (16) " .
                     "ORDER BY RaceDate ASC";
     $intMTChallCount=0;

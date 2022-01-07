@@ -5,7 +5,9 @@
         $RaceYear = $_GET['champYear'];
     }
     else {
-        $RaceYear = date("Y");
+		// commented out to have manual year entry in session variable - mitigates year end bug of all race times disappearing
+		//$RaceYear = date("Y");
+		$RaceYear = 2021;
     }    
 
 $sqlTopThreeMostPopularRaces = "SELECT tblRaceTimes.RaceID, tblRaces.RaceName, count(RaceTime) AS runner_count FROM tblRaceTimes INNER JOIN tblRaces ON tblRaceTimes.RaceID = tblRaces.RaceID WHERE tblRaces.ChampYear = " . $RaceYear . " GROUP BY RaceID ORDER BY runner_count DESC LIMIT 3";
