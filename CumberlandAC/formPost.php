@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8">
 
-  <title>Cumberland AC DB Admin</title>
+  <title>Cumberland AC DB Admin - Process Update</title>
   <meta name="description" content="Cumberland AC DB Admin - Update Database">
   <meta name="author" content="West Coast Web Design">
 
@@ -17,15 +17,15 @@
 </head>
     
 <?php   
-    // open connection to the database
-    require 'DBconn.php';
-    
+	// create your log file and set to append (a+)
+	$myLog = fopen("formPost_log.txt", "a+") or die("Unable to open file!");
+	$tDateFormat = "Y-m-d_H-i T (\G\M\T O): ";
+
+	$tLogWrite = "\n- - - Start of log entries for: " . date($tDateFormat) . "\n";
+	fwrite($myLog,$tLogWrite);
+
     // Note: all dates are stored in reverse in SQL e.g. 2017-12-31 for 31st Dec 2017
     //       so convert dates on this page, before they are stored in the DB
-
-    $iCurrentYear = 2021; //$date("Y");
-    
-
     
 if(empty($_POST["parentPage"]))  
 {
@@ -35,6 +35,9 @@ if(empty($_POST["parentPage"]))
 }
 else {
         $whatInfo = htmlspecialchars($_POST["parentPage"]);
+
+		$tLogWrite = date($tDateFormat) . "Parent page: " . $whatInfo . "\n";
+		fwrite($myLog,$tLogWrite);
 }
 
     
@@ -56,9 +59,15 @@ if ($whatInfo == "amendRunner") {
         "', RunnerSex='" . $txtRunnerSex .
         "' WHERE RunnerID=" . $intRunnerID;
     if (mysqli_query($conn,$sql) === TRUE) {
-        echo "<br><br>Runner details changed successfully<br><br>";
+		echo "<br><br>Runner details changed successfully<br><br>";
+		
+		$tLogWrite = date($tDateFormat) . "SQL SUCCESS: " . $sql . "\n";
+		fwrite($myLog,$tLogWrite);
     } else {
-        echo "<br><br>Error updating record: " . $conn->error . "<br><br>" . $sql;
+        echo "<br><br>Oops! There was a problem updating the runner details. The error has been saved to the error log. <b><u>Please let Stu know and he'll try to fix it</u></b> :)";
+
+		$tLogWrite = date($tDateFormat) . "SQL ERROR: " . $conn->error . "\n";
+		fwrite($myLog,$tLogWrite);
     } 
 }
 if ($whatInfo == "addRunner") {
@@ -79,9 +88,15 @@ if ($whatInfo == "addRunner") {
         "'" . $txtRunnerSex . "')";
 
     if (mysqli_query($conn,$sql) === TRUE) {
-        echo "New record created successfully";
+        echo "<br><br>New runner created successfully</br>";
+		
+		$tLogWrite = date($tDateFormat) . "SQL SUCCESS: " . $sql . "\n";
+		fwrite($myLog,$tLogWrite);
     } else {
-        echo "Error: " . $sql . "<br>" . $conn->error . "<br><br>" . $sql;
+        echo "<br><br>Oops! There was a problem adding the new runner. The error has been saved to the error log. <b><u>Please let Stu know and he'll try to fix it</u></b> :)";
+
+		$tLogWrite = date($tDateFormat) . "SQL ERROR: " . $conn->error . "\n";
+		fwrite($myLog,$tLogWrite);
     } 
 }
 if ($whatInfo == "addRace") {
@@ -126,19 +141,30 @@ if($whatInfo == "addRaceTime")
     
     $txtChamp = htmlspecialchars($_POST['champSelect']);
     
+	$tLogWrite = date($tDateFormat) . "Field Count: " . $fieldCount . ". Championship: " . $txtChamp . "\n";
+	fwrite($myLog,$tLogWrite);
+
     if ($txtChamp == "open") {
         $txtRaceID = explode("_",htmlspecialchars($_POST['raceSelect2']));
     }
     else {
         $txtRaceID = explode("_",htmlspecialchars($_POST['raceSelect1']));
     }
-        
+    
+	$tLogWrite = date($tDateFormat) . "Race ID: " . $txtRaceID[0] . "\n";
+	fwrite($myLog,$tLogWrite);
+
+    
     while($i <= $fieldCount) {
         //populate the array, whilst ignoring blank values
         if(!empty(htmlspecialchars($_POST["ddl1_runner_$i"]))) {
             $raceTimeFormat = sprintf('%02d:%02d:%02d', htmlspecialchars($_POST["race_time_hours_$i"]), htmlspecialchars($_POST["race_time_minutes_$i"]), htmlspecialchars($_POST["race_time_seconds_$i"]));
             //array: runner division, runner id and name, race time
             array_push($runnersAndTimes,htmlspecialchars($_POST["ddl1_runner_$i"]), htmlspecialchars($_POST["ddl2_runner_$i"]), $raceTimeFormat);
+			
+			$tLogWrite = date($tDateFormat) . "Added to array: Runner Division: " . htmlspecialchars($_POST["ddl1_runner_$i"]);
+			$tLogWrite .= ". Name and ID: " . htmlspecialchars($_POST["ddl2_runner_$i"]) . " Race Time: " . $raceTimeFormat . "\n";
+			fwrite($myLog,$tLogWrite);
         }
     $i++;
     // print_r($runnersAndTimes);
@@ -169,20 +195,27 @@ if($whatInfo == "addRaceTime")
                 "'" . $txtRunnerID[0] . "', " .
                 "'" . $raceTimeFormat . "')";
         }
-        
+
+		$tLogWrite = date($tDateFormat) . "SQL: " . $sql4 . ". Rows returned: " . mysqli_num_rows($result) . "\n";
+		fwrite($myLog,$tLogWrite);
+		
         if (mysqli_query($conn,$sql2) === TRUE)
         {
             echo "<br>$raceTimeFormat added for $txtRunnerID[1]!<br>";
+			$tLogWrite = date($tDateFormat) . "SQL SUCCESS: " . $sql2 . "\n";
+			fwrite($myLog,$tLogWrite);
         }
         else
         {
-            echo "Error: " . $sql2 . "<br>" . $conn->error . "<br><br>" . $sql2;
+			echo "<br><br>Oops! There was a problem adding the race time $raceTimeFormat for $txtRunnerID[1]. The error has been saved to the error log. <b><u>Please let Stu know and he'll try to fix it</u></b> :)";
+
+			$tLogWrite = date($tDateFormat) . "SQL ERROR: " . $conn->error . "\n";
+			fwrite($myLog,$tLogWrite);
         }
 
 
 // NEW WMA ENTRY CODE - START
-        
-        
+ 
         // need to check the runner is 35 or over on race day, if not, skip this section of code
         $sqlCheckRunnerAgeOver35 = "SELECT tblRunners.RunnerID
 	,tblRunners.RunnerFirstName
@@ -203,30 +236,35 @@ WHERE tblRunners.RunnerID = $txtRunnerID[0]
 				FROM tblRaces
 				WHERE RaceID = $txtRaceID[0]
 				), RunnerDOB) / 365.25) >= 35";
+
+		$tLogWrite = date($tDateFormat) . "WMA runner age check" . "\n";
+		fwrite($myLog,$tLogWrite); 
 				
         $resultAgeCheck = mysqli_query($conn,$sqlCheckRunnerAgeOver35);
         
         // if no rows are returned with the above query, it means the runner isn't old enough to be WMA eligible
         if($resultAgeCheck->num_rows == 0)
         {
+			$tLogWrite = date($tDateFormat) . "Runner not >=35 on race day." . "\n";
+			fwrite($myLog,$tLogWrite); 
             goto runnerNotWMAEligible;
         }
+
+		$tLogWrite = date($tDateFormat) . "Runner >=35 on race day." . "\n";
+		fwrite($myLog,$tLogWrite); 
         
         //check for WMA entry for this runner & race ID
         $sqlCheckForWMATimeEntry = "SELECT tblWMARaceTimes.RaceID, tblWMARaceTimes.RunnerID FROM tblWMARaceTimes WHERE tblWMARaceTimes.RaceID=$txtRaceID[0] AND tblWMARaceTimes.RunnerID = $txtRunnerID[0]";
-        
-        echo "<br>" . $sqlCheckForWMATimeEntry;
-        
-        
+		$tLogWrite = date($tDateFormat) . "SQL: " . $sqlCheckForWMATimeEntry . "\n";
+		fwrite($myLog,$tLogWrite); 
+
         $resultWMACheck = mysqli_query($conn,$sqlCheckForWMATimeEntry);
             
-        // if a result is found, UPDATE instead of INSERT
-        echo "<br>" . $resultWMACheck->num_rows;
-        
+        // if a result is found, UPDATE instead of INSERT       
         if($resultWMACheck->num_rows > 0)
         {
-            echo "<br><br>result returned in WMA table. records to be UPDATED.<br><br>";
-
+			$tLogWrite = date($tDateFormat) . "Result returned in WMA table. Records to be UPDATED." . "\n";
+			fwrite($myLog,$tLogWrite);
             // **** when you test this out in future, make sure the runner has a DoB set!!! ****
             
             while($row=mysqli_fetch_assoc($resultWMACheck)){
@@ -300,7 +338,8 @@ SET dest.WMARaceTime = source.WMAAdjustedTime
         }
         else
         {
-            echo "<br><br>result NOT returned in WMA table. records to be INSERTED.<br><br>";
+			$tLogWrite = date($tDateFormat) . "Result not returned in WMA table. Records to be INSERTED." . "\n";
+			fwrite($myLog,$tLogWrite);
             
             //creates the WMARaceTimes table entry for the WMA procedures to process
             $sqlWMA = "INSERT INTO tblWMARaceTimes (
@@ -360,7 +399,10 @@ WHERE FLOOR(DATEDIFF((
             } while(mysqli_more_results($conn) && mysqli_next_result($conn));
         }
         else {
-            echo "Error: " . $sqlWMA . "<br>" . $conn->error . "<br><br>"; 
+			echo "<br><br>Oops! There was a problem adjusting the race time to a WMA race time for $txtRunnerID[1]. The error has been saved to the error log. <b><u>Please let Stu know and he'll try to fix it</u></b> :)";
+
+			$tLogWrite = date($tDateFormat) . "SQL ERROR: " . $conn->error . "\n";
+			fwrite($myLog,$tLogWrite);
         }
         
 runnerNotWMAEligible:
@@ -383,21 +425,42 @@ runnerNotWMAEligible:
     // OPEN CHAMP FUNCTION CALLS - START
     //
     // call the rankOpenChampDiv1M function
+	$tLogWrite = date($tDateFormat) . "Function calls" . "\n";
+	$tLogWrite .= date($tDateFormat) . "rankOpenChampDiv1MRace($txtRaceID[0])" . "\n";
+	fwrite($myLog,$tLogWrite);
     rankOpenChampDiv1MRace($txtRaceID[0]);
+
     // call the rankOpenChampDiv1F function
+	$tLogWrite = date($tDateFormat) . "rankOpenChampDiv1FRace($txtRaceID[0])" . "\n";
+	fwrite($myLog,$tLogWrite);
     rankOpenChampDiv1FRace($txtRaceID[0]);
+
         // call the rankOpenChampDiv1Joint function
         // rankOpenChampDiv1JointRace($txtRaceID[0]);
+
     // call the rankOpenChampDiv2M function
+	$tLogWrite = date($tDateFormat) . "rankOpenChampDiv2MRace($txtRaceID[0])" . "\n";
+	fwrite($myLog,$tLogWrite);
     rankOpenChampDiv2MRace($txtRaceID[0]);
+
     // call the rankOpenChampDiv2F function
+	$tLogWrite = date($tDateFormat) . "rankOpenChampDiv2FRace($txtRaceID[0])" . "\n";
+	fwrite($myLog,$tLogWrite);
     rankOpenChampDiv2FRace($txtRaceID[0]);
+	
         // call the rankOpenChampDiv2Joint function
         // rankOpenChampDiv2JointRace($txtRaceID[0]);
+
     // call the rankOpenChampDiv3M function
+	$tLogWrite = date($tDateFormat) . "rankOpenChampDiv3MRace($txtRaceID[0])" . "\n";
+	fwrite($myLog,$tLogWrite);
     rankOpenChampDiv3MRace($txtRaceID[0]);
+
     // call the rankOpenChampDiv3F function
+	$tLogWrite = date($tDateFormat) . "rankOpenChampDiv3FRace($txtRaceID[0])" . "\n";
+	fwrite($myLog,$tLogWrite);
     rankOpenChampDiv3FRace($txtRaceID[0]);
+
         // call the rankOpenChampDiv3Joint function
         // rankOpenChampDiv3JointRace($txtRaceID[0]);
 
@@ -405,14 +468,21 @@ runnerNotWMAEligible:
         // MASTERS FUNCTION CALLS - START
         //
         // call the rankOpenChampWMAM function
-        rankOpenChampWMAMRace($txtRaceID[0]);
-        // call the rankOpenChampWMAF function
+        $tLogWrite = date($tDateFormat) . "rankOpenChampWMAMRace($txtRaceID[0])" . "\n";
+		fwrite($myLog,$tLogWrite);
+		rankOpenChampWMAMRace($txtRaceID[0]);
+        
+		// call the rankOpenChampWMAF function
+        $tLogWrite = date($tDateFormat) . "rankOpenChampWMAFRace($txtRaceID[0])" . "\n";
+		fwrite($myLog,$tLogWrite);		
         rankOpenChampWMAFRace($txtRaceID[0]);    
         // MASTERS FUNCTION CALLS - END
     //
     // LADIES CHAMP FUNCTION CALLS - START
     //
     // call the rankOpenChampLadies function
+	$tLogWrite = date($tDateFormat) . "rankOpenChampLadiesRace($txtRaceID[0])" . "\n";
+	fwrite($myLog,$tLogWrite);
     rankOpenChampLadiesRace($txtRaceID[0]);
     // LADIES FUNCTION CALLS - END   
     //
@@ -424,8 +494,12 @@ runnerNotWMAEligible:
     //
     
     // call the rankMTChallMRace function
+	$tLogWrite = date($tDateFormat) . "rankMTChallMRace($txtRaceID[0])" . "\n";
+	fwrite($myLog,$tLogWrite);
     rankMTChallMRace($txtRaceID[0]);
     // call the rankMTChallFRace function
+	$tLogWrite = date($tDateFormat) . "rankMTChallFRace($txtRaceID[0])" . "\n";
+	fwrite($myLog,$tLogWrite);
     rankMTChallFRace($txtRaceID[0]);
     //
     // MT CHALL FUNCTION CALLS - END
@@ -448,16 +522,33 @@ runnerNotWMAEligible:
     rankShortChampMRace($txtRaceID[0]);
 */    
     // call the rankShortChampDiv3MRace function
+	$tLogWrite = date($tDateFormat) . "rankShortChampDiv3MRace($txtRaceID[0])" . "\n";
+	fwrite($myLog,$tLogWrite);
     rankShortChampDiv3MRace($txtRaceID[0]);
+
     // call the rankShortChampDiv2MRace function
+	$tLogWrite = date($tDateFormat) . "rankShortChampDiv2MRace($txtRaceID[0])" . "\n";
+	fwrite($myLog,$tLogWrite);
     rankShortChampDiv2MRace($txtRaceID[0]);
+
     // call the rankShortChampDiv1MRace function
+	$tLogWrite = date($tDateFormat) . "rankShortChampDiv1MRace($txtRaceID[0])" . "\n";
+	fwrite($myLog,$tLogWrite);
     rankShortChampDiv1MRace($txtRaceID[0]);
+
     // call the rankShortChampDiv3FRace function
+	$tLogWrite = date($tDateFormat) . "rankShortChampDiv3FRace($txtRaceID[0])" . "\n";
+	fwrite($myLog,$tLogWrite);
     rankShortChampDiv3FRace($txtRaceID[0]);
+
     // call the rankShortChampDiv2FRace function
+	$tLogWrite = date($tDateFormat) . "rankShortChampDiv2FRace($txtRaceID[0])" . "\n";
+	fwrite($myLog,$tLogWrite);
     rankShortChampDiv2FRace($txtRaceID[0]);
+
     // call the rankShortChampDiv1FRace function
+	$tLogWrite = date($tDateFormat) . "rankShortChampDiv1FRace($txtRaceID[0])" . "\n";
+	fwrite($myLog,$tLogWrite);
     rankShortChampDiv1FRace($txtRaceID[0]);
     
     //
@@ -466,6 +557,8 @@ runnerNotWMAEligible:
 
     
     // call the champTotalPoints function
+	$tLogWrite = date($tDateFormat) . "champTotalPoints($txtRaceID[0])" . "\n";
+	fwrite($myLog,$tLogWrite);
     champTotalPoints($txtRaceID[0]);
     
 }
@@ -479,10 +572,15 @@ runnerNotWMAEligible:
 // START
 function rankOpenChampDiv1MRace($RID) {
     require 'DBconn.php';
+
+	global $tDateFormat, $myLog;
     
     // the second SELECT statement is important as it returns the results of the stored procedure
     $sqlRankDiv1M = 'CALL proc_openChamp_Div1M_rank('.$RID.'); SELECT RaceID, RunnerID, RaceTime, rank;';
     
+	$tLogWrite = date($tDateFormat) . "SQL: " . $sqlRankDiv1M . "\n";
+	fwrite($myLog,$tLogWrite);
+	
     if(mysqli_multi_query($conn,$sqlRankDiv1M))
     {
         do{
@@ -498,7 +596,9 @@ function rankOpenChampDiv1MRace($RID) {
         } while(mysqli_more_results($conn) && mysqli_next_result($conn));
     }
     else {
-        echo "Couldn't rank Div1M race";
+			echo "<br><br>Oops! There was a problem ranking the race. The error has been saved to the error log. <b><u>Please let Stu know and he'll try to fix it</u></b> :)";
+			$tLogWrite = date($tDateFormat) . "SQL ERROR: " . mysqli_error() . "\n";
+			fwrite($myLog,$tLogWrite);
     }
 
 }
@@ -511,6 +611,8 @@ function rankOpenChampDiv1MRace($RID) {
 // START    
 function setOpenChampDiv1MRacePoints($RaceID,$RunnerID,$Rank) {
     require 'DBconn.php';
+
+	global $tDateFormat, $myLog;
     
     // using a SQL stored procedure so DB can check if a record already exists for this RaceID, RunnerID combo before inserting a new record
     
@@ -519,11 +621,14 @@ function setOpenChampDiv1MRacePoints($RaceID,$RunnerID,$Rank) {
 
     if (mysqli_multi_query($conn,$sqlPointsDiv1M) === TRUE)
     {
-        //echo "<br>Race points added!<br>";
+		$tLogWrite = date($tDateFormat) . "SQL SUCCESS: " . $sqlPointsDiv1M . "\n";
+		fwrite($myLog,$tLogWrite);
     }
     else
     {
-        echo "Error: " . $sqlPointsDiv1M . "<br><br>" . mysqli_error() . "<br><br>";
+		echo "<br><br>Oops! There was a problem assigning a rank to this runner for the race. The error has been saved to the error log. <b><u>Please let Stu know and he'll try to fix it</u></b> :)";
+		$tLogWrite = date($tDateFormat) . "SQL ERROR: " . mysqli_error() . "\n";
+		fwrite($myLog,$tLogWrite);
     }
 
 }
@@ -537,9 +642,14 @@ function setOpenChampDiv1MRacePoints($RaceID,$RunnerID,$Rank) {
 // START
 function rankOpenChampDiv1FRace($RID) {
     require 'DBconn.php';
+
+	global $tDateFormat, $myLog;
     
     // the second SELECT statement is important as it returns the results of the stored procedure
     $sqlRankDiv1F = 'CALL proc_openChamp_Div1F_rank(' . $RID . '); SELECT RaceID, RunnerID, RaceTime, rank;';
+
+	$tLogWrite = date($tDateFormat) . "SQL: " . $sqlRankDiv1F . "\n";
+	fwrite($myLog,$tLogWrite);
     
     if(mysqli_multi_query($conn,$sqlRankDiv1F))
     {
@@ -556,7 +666,9 @@ function rankOpenChampDiv1FRace($RID) {
         } while(mysqli_more_results($conn) && mysqli_next_result($conn));
     }
     else {
-        echo "Couldn't rank Div1F race";
+		echo "<br><br>Oops! There was a problem ranking the race. The error has been saved to the error log. <b><u>Please let Stu know and he'll try to fix it</u></b> :)";
+		$tLogWrite = date($tDateFormat) . "SQL ERROR: " . mysqli_error() . "\n";
+		fwrite($myLog,$tLogWrite);
     }
 
 }
@@ -569,6 +681,8 @@ function rankOpenChampDiv1FRace($RID) {
 // START    
 function setOpenChampDiv1FRacePoints($RaceID,$RunnerID,$Rank) {
     require 'DBconn.php';
+
+	global $tDateFormat, $myLog;
     
     // using a SQL stored procedure so DB can check if a record already exists for this RaceID, RunnerID combo before inserting a new record
     
@@ -577,11 +691,14 @@ function setOpenChampDiv1FRacePoints($RaceID,$RunnerID,$Rank) {
 
     if (mysqli_multi_query($conn,$sqlPointsDiv1F) === TRUE)
     {
-        //echo "<br>Race points added!<br>";
+		$tLogWrite = date($tDateFormat) . "SQL SUCCESS: " . $sqlPointsDiv1F . "\n";
+		fwrite($myLog,$tLogWrite);
     }
     else
     {
-        echo "Error: " . $sqlPointsDiv1F . "<br><br>" . mysqli_error() . "<br><br>";
+		echo "<br><br>Oops! There was a problem assigning a rank to this runner for the race. The error has been saved to the error log. <b><u>Please let Stu know and he'll try to fix it</u></b> :)";
+		$tLogWrite = date($tDateFormat) . "SQL ERROR: " . mysqli_error() . "\n";
+		fwrite($myLog,$tLogWrite);
     }
 
 }
@@ -590,73 +707,18 @@ function setOpenChampDiv1FRacePoints($RaceID,$RunnerID,$Rank) {
 // END 
 
 
-/*
-        // Rank the Division 1 Joint Race
-        //
-        // START
-        function rankOpenChampDiv1JointRace($RID) {
-            require 'DBconn.php';
-
-            // the second SELECT statement is important as it returns the results of the stored procedure
-            $sqlRankDiv1Joint = 'CALL proc_openChamp_Div1Joint_rank('.$RID.'); SELECT RaceID, RunnerID, RaceTime, rank;';
-
-            if(mysqli_multi_query($conn,$sqlRankDiv1Joint))
-            {
-                do{
-                    if($result=mysqli_store_result($conn)){
-                        while($row=mysqli_fetch_assoc($result)){    
-                            setOpenChampDiv1JointRacePoints($row['RaceID'], $row['RunnerID'], $row['rank']);               
-                        }
-                        mysqli_free_result($result);
-                    }
-                    if(mysqli_more_results($conn)) {
-                        // do nothing
-                    }
-                } while(mysqli_more_results($conn) && mysqli_next_result($conn));
-            }
-            else {
-                echo "Couldn't rank Div1Joint race";
-            }
-
-        }
-        // Rank the Division 1 Joint Race
-        //
-        // END
-
-        // Set the Division 1 Joint Race Points
-        //
-        // START    
-        function setOpenChampDiv1JointRacePoints($RaceID,$RunnerID,$Rank) {
-            require 'DBconn.php';
-
-            // using a SQL stored procedure so DB can check if a record already exists for this RaceID, RunnerID combo before inserting a new record
-
-            // %1$s = RaceID, %2$s = RunnerID, %3$s = Rank
-            $sqlPointsDiv1Joint = sprintf('CALL proc_openChamp_Div1Joint_points(%1$s,%2$s,%3$s)', $RaceID,$RunnerID,$Rank);
-
-            if (mysqli_multi_query($conn,$sqlPointsDiv1Joint) === TRUE)
-            {
-                //echo "<br>Race points added!<br>";
-            }
-            else
-            {
-                echo "Error: " . $sqlPointsDiv1Joint . "<br><br>" . mysqli_error() . "<br><br>";
-            }
-
-        }
-        // Set the Division 1 Joint Race Points
-        //
-        // END   */
-
-    
 // Rank the Division 2 Mens Race
 //
 // START
 function rankOpenChampDiv2MRace($RID) {
     require 'DBconn.php';
+
+	global $tDateFormat, $myLog;
     
     // the second SELECT statement is important as it returns the results of the stored procedure
     $sqlRankDiv2M = 'CALL proc_openChamp_Div2M_rank('.$RID.'); SELECT RaceID, RunnerID, RaceTime, rank;';
+	$tLogWrite = date($tDateFormat) . "SQL: " . $sqlRankDiv2M . "\n";
+	fwrite($myLog,$tLogWrite);
     
     if(mysqli_multi_query($conn,$sqlRankDiv2M))
     {
@@ -673,7 +735,9 @@ function rankOpenChampDiv2MRace($RID) {
         } while(mysqli_more_results($conn) && mysqli_next_result($conn));
     }
     else {
-        echo "Couldn't rank Div2M race";
+		echo "<br><br>Oops! There was a problem ranking the race. The error has been saved to the error log. <b><u>Please let Stu know and he'll try to fix it</u></b> :)";
+		$tLogWrite = date($tDateFormat) . "SQL ERROR: " . mysqli_error() . "\n";
+		fwrite($myLog,$tLogWrite);
     }
 
 }
@@ -686,6 +750,8 @@ function rankOpenChampDiv2MRace($RID) {
 // START    
 function setOpenChampDiv2MRacePoints($RaceID,$RunnerID,$Rank) {
     require 'DBconn.php';
+
+	global $tDateFormat, $myLog;
     
     // using a SQL stored procedure so DB can check if a record already exists for this RaceID, RunnerID combo before inserting a new record
     
@@ -694,11 +760,14 @@ function setOpenChampDiv2MRacePoints($RaceID,$RunnerID,$Rank) {
 
     if (mysqli_multi_query($conn,$sqlPointsDiv2M) === TRUE)
     {
-        //echo "<br>Race points added!<br>";
+		$tLogWrite = date($tDateFormat) . "SQL SUCCESS: " . $sqlPointsDiv2M . "\n";
+		fwrite($myLog,$tLogWrite);
     }
     else
     {
-        echo "Error: " . $sqlPointsDiv2M . "<br><br>" . mysqli_error() . "<br><br>";
+		echo "<br><br>Oops! There was a problem assigning a rank to this runner for the race. The error has been saved to the error log. <b><u>Please let Stu know and he'll try to fix it</u></b> :)";
+		$tLogWrite = date($tDateFormat) . "SQL ERROR: " . mysqli_error() . "\n";
+		fwrite($myLog,$tLogWrite);
     }
 
 }
@@ -712,9 +781,13 @@ function setOpenChampDiv2MRacePoints($RaceID,$RunnerID,$Rank) {
 // START
 function rankOpenChampDiv2FRace($RID) {
     require 'DBconn.php';
+
+	global $tDateFormat, $myLog;
     
     // the second SELECT statement is important as it returns the results of the stored procedure
     $sqlRankDiv2F = 'CALL proc_openChamp_Div2F_rank(' . $RID . '); SELECT RaceID, RunnerID, RaceTime, rank;';
+	$tLogWrite = date($tDateFormat) . "SQL: " . $sqlRankDiv2F . "\n";
+	fwrite($myLog,$tLogWrite);
     
     if(mysqli_multi_query($conn,$sqlRankDiv2F))
     {
@@ -731,7 +804,9 @@ function rankOpenChampDiv2FRace($RID) {
         } while(mysqli_more_results($conn) && mysqli_next_result($conn));
     }
     else {
-        echo "Couldn't rank Div2F race";
+		echo "<br><br>Oops! There was a problem ranking the race. The error has been saved to the error log. <b><u>Please let Stu know and he'll try to fix it</u></b> :)";
+		$tLogWrite = date($tDateFormat) . "SQL ERROR: " . mysqli_error() . "\n";
+		fwrite($myLog,$tLogWrite);
     }
 
 }
@@ -744,6 +819,8 @@ function rankOpenChampDiv2FRace($RID) {
 // START    
 function setOpenChampDiv2FRacePoints($RaceID,$RunnerID,$Rank) {
     require 'DBconn.php';
+
+	global $tDateFormat, $myLog;
     
     // using a SQL stored procedure so DB can check if a record already exists for this RaceID, RunnerID combo before inserting a new record
     
@@ -752,11 +829,14 @@ function setOpenChampDiv2FRacePoints($RaceID,$RunnerID,$Rank) {
 
     if (mysqli_multi_query($conn,$sqlPointsDiv2F) === TRUE)
     {
-        //echo "<br>Race points added!<br>";
+		$tLogWrite = date($tDateFormat) . "SQL SUCCESS: " . $sqlPointsDiv2F . "\n";
+		fwrite($myLog,$tLogWrite);
     }
     else
     {
-        echo "Error: " . $sqlPointsDiv2F . "<br><br>" . mysqli_error() . "<br><br>";
+		echo "<br><br>Oops! There was a problem assigning a rank to this runner for the race. The error has been saved to the error log. <b><u>Please let Stu know and he'll try to fix it</u></b> :)";
+		$tLogWrite = date($tDateFormat) . "SQL ERROR: " . mysqli_error() . "\n";
+		fwrite($myLog,$tLogWrite);
     }
 
 }
@@ -765,73 +845,18 @@ function setOpenChampDiv2FRacePoints($RaceID,$RunnerID,$Rank) {
 // END     
 
 
-/*
-        // Rank the Division 2 Joint Race
-        //
-        // START
-        function rankOpenChampDiv2JointRace($RID) {
-            require 'DBconn.php';
-
-            // the second SELECT statement is important as it returns the results of the stored procedure
-            $sqlRankDiv2Joint = 'CALL proc_openChamp_Div2Joint_rank('.$RID.'); SELECT RaceID, RunnerID, RaceTime, rank;';
-
-            if(mysqli_multi_query($conn,$sqlRankDiv2Joint))
-            {
-                do{
-                    if($result=mysqli_store_result($conn)){
-                        while($row=mysqli_fetch_assoc($result)){    
-                            setOpenChampDiv2JointRacePoints($row['RaceID'], $row['RunnerID'], $row['rank']);               
-                        }
-                        mysqli_free_result($result);
-                    }
-                    if(mysqli_more_results($conn)) {
-                        // do nothing
-                    }
-                } while(mysqli_more_results($conn) && mysqli_next_result($conn));
-            }
-            else {
-                echo "Couldn't rank Div2Joint race";
-            }
-
-        }
-        // Rank the Division 2 Joint Race
-        //
-        // END
-
-        // Set the Division 2 Joint Race Points
-        //
-        // START    
-        function setOpenChampDiv2JointRacePoints($RaceID,$RunnerID,$Rank) {
-            require 'DBconn.php';
-
-            // using a SQL stored procedure so DB can check if a record already exists for this RaceID, RunnerID combo before inserting a new record
-
-            // %1$s = RaceID, %2$s = RunnerID, %3$s = Rank
-            $sqlPointsDiv2Joint = sprintf('CALL proc_openChamp_Div2Joint_points(%1$s,%2$s,%3$s)', $RaceID,$RunnerID,$Rank);
-
-            if (mysqli_multi_query($conn,$sqlPointsDiv2Joint) === TRUE)
-            {
-                //echo "<br>Race points added!<br>";
-            }
-            else
-            {
-                echo "Error: " . $sqlPointsDiv2Joint . "<br><br>" . mysqli_error() . "<br><br>";
-            }
-
-        }
-        // Set the Division 2 Joint Race Points
-        //
-        // END */
-    
-    
 // Rank the Division 3 Mens Race
 //
 // START
 function rankOpenChampDiv3MRace($RID) {
     require 'DBconn.php';
+
+	global $tDateFormat, $myLog;
     
     // the second SELECT statement is important as it returns the results of the stored procedure
     $sqlRankDiv3M = 'CALL proc_openChamp_Div3M_rank('.$RID.'); SELECT RaceID, RunnerID, RaceTime, rank;';
+	$tLogWrite = date($tDateFormat) . "SQL: " . $sqlRankDiv3M . "\n";
+	fwrite($myLog,$tLogWrite);
     
     if(mysqli_multi_query($conn,$sqlRankDiv3M))
     {
@@ -848,7 +873,9 @@ function rankOpenChampDiv3MRace($RID) {
         } while(mysqli_more_results($conn) && mysqli_next_result($conn));
     }
     else {
-        echo "Couldn't rank Div3M race";
+		echo "<br><br>Oops! There was a problem ranking the race. The error has been saved to the error log. <b><u>Please let Stu know and he'll try to fix it</u></b> :)";
+		$tLogWrite = date($tDateFormat) . "SQL ERROR: " . mysqli_error() . "\n";
+		fwrite($myLog,$tLogWrite);
     }
 
 }
@@ -861,6 +888,8 @@ function rankOpenChampDiv3MRace($RID) {
 // START    
 function setOpenChampDiv3MRacePoints($RaceID,$RunnerID,$Rank) {
     require 'DBconn.php';
+
+	global $tDateFormat, $myLog;
     
     // using a SQL stored procedure so DB can check if a record already exists for this RaceID, RunnerID combo before inserting a new record
     
@@ -869,11 +898,14 @@ function setOpenChampDiv3MRacePoints($RaceID,$RunnerID,$Rank) {
 
     if (mysqli_multi_query($conn,$sqlPointsDiv3M) === TRUE)
     {
-        //echo "<br>Race points added!<br>";
+		$tLogWrite = date($tDateFormat) . "SQL SUCCESS: " . $sqlPointsDiv3M . "\n";
+		fwrite($myLog,$tLogWrite);
     }
     else
     {
-        echo "Error: " . $sqlPointsDiv3M . "<br><br>" . mysqli_error() . "<br><br>";
+		echo "<br><br>Oops! There was a problem assigning a rank to this runner for the race. The error has been saved to the error log. <b><u>Please let Stu know and he'll try to fix it</u></b> :)";
+		$tLogWrite = date($tDateFormat) . "SQL ERROR: " . mysqli_error() . "\n";
+		fwrite($myLog,$tLogWrite);
     }
 
 }
@@ -887,10 +919,14 @@ function setOpenChampDiv3MRacePoints($RaceID,$RunnerID,$Rank) {
 // START
 function rankOpenChampDiv3FRace($RID) {
     require 'DBconn.php';
+
+	global $tDateFormat, $myLog;
     
     // the second SELECT statement is important as it returns the results of the stored procedure
     $sqlRankDiv3F = 'CALL proc_openChamp_Div3F_rank('.$RID.'); SELECT RaceID, RunnerID, RaceTime, rank;';
-    
+	$tLogWrite = date($tDateFormat) . "SQL: " . $sqlRankDiv3F . "\n";
+	fwrite($myLog,$tLogWrite);
+	
     if(mysqli_multi_query($conn,$sqlRankDiv3F))
     {
         do{
@@ -906,7 +942,9 @@ function rankOpenChampDiv3FRace($RID) {
         } while(mysqli_more_results($conn) && mysqli_next_result($conn));
     }
     else {
-        echo "Couldn't rank Div3M race";
+		echo "<br><br>Oops! There was a problem ranking the race. The error has been saved to the error log. <b><u>Please let Stu know and he'll try to fix it</u></b> :)";
+		$tLogWrite = date($tDateFormat) . "SQL ERROR: " . mysqli_error() . "\n";
+		fwrite($myLog,$tLogWrite);
     }
 
 }
@@ -919,6 +957,8 @@ function rankOpenChampDiv3FRace($RID) {
 // START    
 function setOpenChampDiv3FRacePoints($RaceID,$RunnerID,$Rank) {
     require 'DBconn.php';
+
+	global $tDateFormat, $myLog;
     
     // using a SQL stored procedure so DB can check if a record already exists for this RaceID, RunnerID combo before inserting a new record
     
@@ -927,11 +967,14 @@ function setOpenChampDiv3FRacePoints($RaceID,$RunnerID,$Rank) {
 
     if (mysqli_multi_query($conn,$sqlPointsDiv3F) === TRUE)
     {
-        //echo "<br>Race points added!<br>";
+		$tLogWrite = date($tDateFormat) . "SQL SUCCESS: " . $sqlPointsDiv3F . "\n";
+		fwrite($myLog,$tLogWrite);
     }
     else
     {
-        echo "Error: " . $sqlPointsDiv3F . "<br><br>" . mysqli_error() . "<br><br>";
+		echo "<br><br>Oops! There was a problem assigning a rank to this runner for the race. The error has been saved to the error log. <b><u>Please let Stu know and he'll try to fix it</u></b> :)";
+		$tLogWrite = date($tDateFormat) . "SQL ERROR: " . mysqli_error() . "\n";
+		fwrite($myLog,$tLogWrite);
     }
 
 }
@@ -939,71 +982,18 @@ function setOpenChampDiv3FRacePoints($RaceID,$RunnerID,$Rank) {
 //
 // END    
 
-
-/*
-        // Rank the Division 3 Joint Race
-        //
-        // START
-        function rankOpenChampDiv3JointRace($RID) {
-            require 'DBconn.php';
-
-            // the second SELECT statement is important as it returns the results of the stored procedure
-            $sqlRankDiv3Joint = 'CALL proc_openChamp_Div3Joint_rank('.$RID.'); SELECT RaceID, RunnerID, RaceTime, rank;';
-
-            if(mysqli_multi_query($conn,$sqlRankDiv3Joint))
-            {
-                do{
-                    if($result=mysqli_store_result($conn)){
-                        while($row=mysqli_fetch_assoc($result)){
-                            setOpenChampDiv3JointRacePoints($row['RaceID'], $row['RunnerID'], $row['rank']);               
-                        }
-                        mysqli_free_result($result);
-                    }
-                    if(mysqli_more_results($conn)) {
-                        // do nothing
-                    }
-                } while(mysqli_more_results($conn) && mysqli_next_result($conn));
-            }
-            else {
-                echo "Couldn't rank Div3Joint race";
-            }
-        }
-        // Rank the Division 3 Joint Race
-        //
-        // END
-
-        // Set the Division 3 Joint Race Points
-        //
-        // START    
-        function setOpenChampDiv3JointRacePoints($RaceID,$RunnerID,$Rank) {
-            require 'DBconn.php';
-
-            // using a SQL stored procedure so DB can check if a record already exists for this RaceID, RunnerID combo before inserting a new record
-
-            // %1$s = RaceID, %2$s = RunnerID, %3$s = Rank
-            $sqlPointsDiv3Joint = sprintf('CALL proc_openChamp_Div3Joint_points(%1$s,%2$s,%3$s)', $RaceID,$RunnerID,$Rank);
-
-            if (mysqli_multi_query($conn,$sqlPointsDiv3Joint) === TRUE)
-            {
-                //echo "<br>Race points added!<br>";
-            }
-            else
-            {
-                echo "Error: " . $sqlPointsDiv3Joint . "<br><br>" . mysqli_error() . "<br><br>";
-            }
-        }
-        // Set the Division 3 Joint Race Points
-        //
-        // END */
-
 // Rank the Male MASTERS - START (NEW CODE)
 //
 // START
 function rankOpenChampWMAMRace($RID) {    //
     require 'DBconn.php';   //
+
+	global $tDateFormat, $myLog;
     
     // the subsequent SELECT statement returns the results of the stored procedure //
     $sqlRankWMAM = 'CALL proc_openChamp_WMA_M_rank('.$RID.'); SELECT RaceID, RunnerID, RaceTime, rank;'; //
+	$tLogWrite = date($tDateFormat) . "SQL: " . $sqlRankWMAM . "\n";
+	fwrite($myLog,$tLogWrite);
     
     if(mysqli_multi_query($conn,$sqlRankWMAM))
     {
@@ -1021,7 +1011,9 @@ function rankOpenChampWMAMRace($RID) {    //
         } while(mysqli_more_results($conn) && mysqli_next_result($conn));
     }
     else {
-        echo "Couldn't rank Open Championship (Men's MASTERS) race";
+		echo "<br><br>Oops! There was a problem ranking the race. The error has been saved to the error log. <b><u>Please let Stu know and he'll try to fix it</u></b> :)";
+		$tLogWrite = date($tDateFormat) . "SQL ERROR: " . mysqli_error() . "\n";
+		fwrite($myLog,$tLogWrite);
     }
 }
 // Rank the Male MASTERS - END (NEW CODE)
@@ -1033,6 +1025,8 @@ function rankOpenChampWMAMRace($RID) {    //
 // START    
 function setOpenChampWMAMRacePoints($RaceID,$RunnerID,$Rank) {    //
     require 'DBconn.php';   //
+
+	global $tDateFormat, $myLog;
     
     // using a SQL stored procedure so DB can check if a record already exists for this RaceID, RunnerID combo before inserting a new record
     
@@ -1041,12 +1035,14 @@ function setOpenChampWMAMRacePoints($RaceID,$RunnerID,$Rank) {    //
 
     if (mysqli_multi_query($conn,$sqlPointsWMAM) === TRUE)    //
     {
-        // comment out when it's working properly
-        echo "<br>Open Championship (Men's MASTERS) race points added!<br>$sqlPointsWMAM";
+		$tLogWrite = date($tDateFormat) . "SQL SUCCESS: " . $sqlPointsWMAM . "\n";
+		fwrite($myLog,$tLogWrite);
     }
     else
     {
-        echo "Error: " . $sqlPointsWMAM . "<br><br>" . mysqli_error() . "<br><br>";
+		echo "<br><br>Oops! There was a problem assigning a rank to this runner for the race. The error has been saved to the error log. <b><u>Please let Stu know and he'll try to fix it</u></b> :)";
+		$tLogWrite = date($tDateFormat) . "SQL ERROR: " . mysqli_error() . "\n";
+		fwrite($myLog,$tLogWrite);
     }
 }
 // Set the Male Masters Race Points - END (NEW CODE)
@@ -1058,10 +1054,14 @@ function setOpenChampWMAMRacePoints($RaceID,$RunnerID,$Rank) {    //
 // START
 function rankOpenChampWMAFRace($RID) {    //
     require 'DBconn.php';   //
+
+	global $tDateFormat, $myLog;
     
     // the second SELECT statement is important as it returns the results of the stored procedure //
     $sqlRankWMAF = 'CALL proc_openChamp_WMA_F_rank('.$RID.'); SELECT RaceID, RunnerID, RaceTime, rank;'; //
-    
+	$tLogWrite = date($tDateFormat) . "SQL: " . $sqlRankWMAF . "\n";
+	fwrite($myLog,$tLogWrite);    
+	
     if(mysqli_multi_query($conn,$sqlRankWMAF))
     {
         do{
@@ -1078,7 +1078,9 @@ function rankOpenChampWMAFRace($RID) {    //
         } while(mysqli_more_results($conn) && mysqli_next_result($conn));
     }
     else {
-        echo "Couldn't rank Open Championship (Ladies MASTERS) race";
+		echo "<br><br>Oops! There was a problem ranking the race. The error has been saved to the error log. <b><u>Please let Stu know and he'll try to fix it</u></b> :)";
+		$tLogWrite = date($tDateFormat) . "SQL ERROR: " . mysqli_error() . "\n";
+		fwrite($myLog,$tLogWrite);
     }
 }
 // Rank the Ladies MASTERS - END (NEW CODE)
@@ -1090,6 +1092,8 @@ function rankOpenChampWMAFRace($RID) {    //
 // START    
 function setOpenChampWMAFRacePoints($RaceID,$RunnerID,$Rank) {    //
     require 'DBconn.php';   //
+
+	global $tDateFormat, $myLog;
     
     // using a SQL stored procedure so DB can check if a record already exists for this RaceID, RunnerID combo before inserting a new record
     
@@ -1098,12 +1102,14 @@ function setOpenChampWMAFRacePoints($RaceID,$RunnerID,$Rank) {    //
 
     if (mysqli_multi_query($conn,$sqlPointsWMAF) === TRUE)    //
     {
-        // comment out when it's working properly
-        echo "<br>Open Championship (Ladies MASTERS) race points added!<br>$sqlPointsWMAF";
+		$tLogWrite = date($tDateFormat) . "SQL SUCCESS: " . $sqlPointsWMAF . "\n";
+		fwrite($myLog,$tLogWrite);
     }
     else
     {
-        echo "Error: " . $sqlPointsWMAF . "<br><br>" . mysqli_error() . "<br><br>";
+		echo "<br><br>Oops! There was a problem assigning a rank to this runner for the race. The error has been saved to the error log. <b><u>Please let Stu know and he'll try to fix it</u></b> :)";
+		$tLogWrite = date($tDateFormat) . "SQL ERROR: " . mysqli_error() . "\n";
+		fwrite($myLog,$tLogWrite);
     }
 }
 // Set the Ladies Masters Race Points - END (NEW CODE)
@@ -1230,105 +1236,6 @@ function rankRaceTies($RID) {
     }
     mysqli_close($conn);
 }      
-///////////////////// 
-//
-// function to update all championship points entries for the raceID passed to it
-//
-function champRacePoints($RID)
-{
-    // open and close a separate DB connection within each function.
-    require 'DBconn.php';
-
-    $sqlFindChamp = "SELECT RaceCode FROM tblRaces WHERE RaceID=$RID";
-
-    $result = mysqli_query($conn,$sqlFindChamp);
-    
-    if(mysqli_num_rows($result) > 0)
-    {
-        // output data of each row
-        while($row = $result->fetch_assoc())
-        {   
-            $RaceCode = $row["RaceCode"];
-        }
-    }           
-    else
-    {
-        // There were no codes for this race!
-        echo "There were no codes for this race! : " . $sqlFindChamp . " or there was an ERROR: " . mysqli_error($result);
-    }
-
-    switch ($RaceCode) {
-            // Note 1: Use single quotes in format string otherwise you will get PHP Notice: Undefined variable: s... error
-            //
-            // Note 2: %2$s is a placeholder for the RunnerID
-            //         %1$s is a placeholder for the RacePoints
-            //         $RID is a placeholder for the RaceID
-        case 1:
-        case 2:
-        case 4:
-		case 32:
-            // Race codes 1, 2, 4 and 32 are for Open Champ races only. So procedure is identical.
-            //
-            // re-use the procedure by assigning a number to each type of open championship:
-            //     1: General open championship
-            //     2: Open Championship, Division 1 Men
-            //     3: Open Championship, Division 1 Ladies
-            //     4: Open Championship, Division 2 Men
-            //     5: Open Championship, Division 2 Ladies
-            //     6: Open Championship, Division 3 Men
-            //     7: Open Championship, Division 3 Ladies
-            
-            $sqlUpdateChampPoints = 'CALL proc_openChamp_add_points(%2$s,' . $RID . ',%1$s, 1)';
-        break;
-        case 8:
-            // Race code 8 is for Short Champ races only.
-            /*$sqlUpdateChampPoints = 'CALL proc_shortChamp_add_points(%2$s,' . $RID . ',%1$s)'; FUNCTION NOT USED */
-        break;
-        case 9:
-            // Race code 9 is for Open Champ races and Short Champ: Sprint races. Join both procedures.
-            $sqlUpdateChampPoints = 'CALL proc_openChamp_add_points(%2$s,' . $RID . ',%1$s, 1);' . 
-                                    'CALL proc_shortChamp_add_points(%2$s,' . $RID . ',%1$s);';
-        break;        
-        case 16:
-            // Race code 16 is for MT Chall races only.
-            $sqlUpdateChampPoints = 'CALL proc_MTChall_add_points(%2$s,' . $RID . ',%1$s)';
-        break;
-    }
-    
-    $sqlSelectRunnersPoints = "SELECT RunnerID, RacePoints FROM tblRaceTimes WHERE RaceID=$RID";
-    
-    $result = mysqli_query($conn,$sqlSelectRunnersPoints);
-    
-    if(mysqli_num_rows($result) > 0)
-    {
-        // output data of each row
-        while($row = $result->fetch_assoc())
-        {   
-            $RunnerID = $row["RunnerID"];
-            $RacePoints = $row["RacePoints"];
-
-            $sqlUpdatePoints = sprintf($sqlUpdateChampPoints,$RacePoints,$RunnerID);
-            
-            if (mysqli_multi_query($conn,$sqlUpdatePoints) === TRUE)
-            {
-                echo "<br>$RacePoints points added for runner $RunnerID!<br>";
-            }
-            else
-            {
-                echo "Error: " . $sqlUpdatePoints . "<br><br>" . mysqli_error(mysqli_multi_query($conn,$sqlUpdatePoints)) . "<br>";
-            }            
-        }
-    }           
-    else
-    {
-        // Couldn't find any runners or times for this race!
-        echo "Couldn't find any runners or times for this race! : " . $sqlSelectRunnersPoints . " or there was an ERROR: " . $mysqli->errno;
-    }
-    
-    
-    mysqli_close($conn);
-}
-/////////////////////
 
 //
 // function to update all championship points entries for the raceID passed to it - START
@@ -1337,6 +1244,8 @@ function champTotalPoints($RID)
 {
     // open and close a separate DB connection within each function.
     require 'DBconn.php';
+
+	global $tDateFormat, $myLog, $RaceYear;
     
     // in this function, the RaceID is used only to determine which championship(s) and which open championship category to update - only change the affected data!
     
@@ -1347,7 +1256,9 @@ function champTotalPoints($RID)
     // write the total points to the overall points table against the championshipID and runnerID
     
     $sqlFindChamp = "SELECT RaceCode FROM tblRaces WHERE RaceID=$RID";
-
+	$tLogWrite = date($tDateFormat) . "SQL: " . $sqlFindChamp . "\n";
+	fwrite($myLog,$tLogWrite); 
+	
     $result = mysqli_query($conn,$sqlFindChamp);
     
     if(mysqli_num_rows($result) > 0)
@@ -1356,22 +1267,29 @@ function champTotalPoints($RID)
         while($row = $result->fetch_assoc())
         {   
             $RaceCode = $row["RaceCode"];
+			$tLogWrite = date($tDateFormat) . "Race Code: " . $RaceCode . "\n";
+			fwrite($myLog,$tLogWrite); 
         }
     }           
     else
     {
-        // There were no codes for this race!
-        echo "There were no codes for this race! : " . $sqlFindChamp . " or there was an ERROR: " . mysqli_error($result);
+		echo "<br><br>Oops! There's a problem with the race details. The error has been saved to the error log. <b><u>Please let Stu know and he'll try to fix it</u></b> :)";
+		$tLogWrite = date($tDateFormat) . "Either no rows returned, or SQL ERROR: " . mysqli_error() . "\n";
+		fwrite($myLog,$tLogWrite);
     }
 
     
 /* OpenChamp Sprint distance */
     if($RaceCode == "1" || $RaceCode == "9")
     {
+		$tLogWrite = date($tDateFormat) . "Open Champ: Sprint distance race point tally" . "\n";
+		fwrite($myLog,$tLogWrite);
         //
         // select all runners who have ran a sprint distance race (1, or 9) for the current year
         // START
-        $sqlSelectRunners = 'SELECT DISTINCT RunnerID FROM tblOpenChampDivGenRacePoints WHERE RaceID IN (Select RaceID FROM tblRaces WHERE RaceCode IN (1,9) AND ChampYear=' . $iCurrentYear . ')';
+        $sqlSelectRunners = 'SELECT DISTINCT RunnerID FROM tblOpenChampDivGenRacePoints WHERE RaceID IN (Select RaceID FROM tblRaces WHERE RaceCode IN (1,9) AND ChampYear=' . $RaceYear . ')';
+		$tLogWrite = date($tDateFormat) . "SQL: " . $sqlSelectRunners . "\n";
+		fwrite($myLog,$tLogWrite);
     
         $result = mysqli_query($conn,$sqlSelectRunners);
     
@@ -1380,33 +1298,34 @@ function champTotalPoints($RID)
             // output data of each row
             while($row = $result->fetch_assoc())
             {
-                //$RunnerID = $row["RunnerID"];
-
-                //$sqlUpdatePoints = sprintf('CALL proc_openChamp_sprint_points(%1$s,%2$s); proc_openChamp_sprint_Div1_top2(%1$s,%2$s);',$RunnerID, $RID);
-                
                 $RunnerID = $row["RunnerID"];
 
                 $sqlUpdatePoints = sprintf('CALL proc_openChamp_sprint_points(%1$s,%2$s);',$RunnerID, $RID);
-
+				$tLogWrite = date($tDateFormat) . "SQL: " . $sqlUpdatePoints . "\n";
+				fwrite($myLog,$tLogWrite);
                 $result2 = mysqli_query($conn,$sqlUpdatePoints);
                 
                 $sqlUpdatePoints2 = sprintf('CALL proc_openChamp_sprint_Divs_top2(%1$s,%2$s);',$RunnerID, $RID);
-                
+				$tLogWrite = date($tDateFormat) . "SQL: " . $sqlUpdatePoints2 . "\n";
+				fwrite($myLog,$tLogWrite);                
                 $result3 = mysqli_query($conn,$sqlUpdatePoints2);
 
                 $sqlUpdatePoints3 = sprintf('CALL proc_openChamp_WMA_sprint_top2(%1$s,%2$s);',$RunnerID, $RID);
-                
+				$tLogWrite = date($tDateFormat) . "SQL: " . $sqlUpdatePoints3 . "\n";
+				fwrite($myLog,$tLogWrite);                
                 $result4 = mysqli_query($conn,$sqlUpdatePoints3);
 
                 $sqlUpdatePoints4 = sprintf('CALL proc_openChamp_ladies_sprint_top2(%1$s,%2$s);',$RunnerID, $RID);
-                
+				$tLogWrite = date($tDateFormat) . "SQL: " . $sqlUpdatePoints4 . "\n";
+				fwrite($myLog,$tLogWrite);                
                 $result5 = mysqli_query($conn,$sqlUpdatePoints4);
             }
         }           
         else
         {
-            // Couldn't find any runners or times for this race!
-            echo "Couldn't find any runners or times for this Open Championship Sprint distance race! : " . $sqlSelectRunnersPoints . " or there was an ERROR: " . $mysqli->errno;
+			echo "<br><br>Oops! There's a problem with the race details. The error has been saved to the error log. <b><u>Please let Stu know and he'll try to fix it</u></b> :)";
+			$tLogWrite = date($tDateFormat) . "Either no rows returned or SQL ERROR: " . mysqli_error() . "\n";
+			fwrite($myLog,$tLogWrite);
         }        
         // END
         // select all runners who have ran a sprint distance race (1, or 9) for the current year
@@ -1418,8 +1337,13 @@ function champTotalPoints($RID)
 /* OpenChamp Middle distance */
     if($RaceCode == "2")
     {
-        $sqlSelectRunners = 'SELECT DISTINCT RunnerID FROM tblOpenChampDivGenRacePoints WHERE RaceID IN (Select RaceID FROM tblRaces WHERE RaceCode = 2 AND ChampYear=' . $iCurrentYear . ')';
-    
+		$tLogWrite = date($tDateFormat) . "Open Champ: Middle distance race point tally" . "\n";
+		fwrite($myLog,$tLogWrite);
+		
+        $sqlSelectRunners = 'SELECT DISTINCT RunnerID FROM tblOpenChampDivGenRacePoints WHERE RaceID IN (Select RaceID FROM tblRaces WHERE RaceCode = 2 AND ChampYear=' . $RaceYear . ')';
+		$tLogWrite = date($tDateFormat) . "SQL: " . $sqlSelectRunners . "\n";
+		fwrite($myLog,$tLogWrite);
+		
         $result = mysqli_query($conn,$sqlSelectRunners);
     
         if(mysqli_num_rows($result) > 0)
@@ -1448,8 +1372,9 @@ function champTotalPoints($RID)
         }           
         else
         {
-            // Couldn't find any runners or times for this race!
-            echo "Couldn't find any runners or times for this Open Championship Middle distance race! : " . $sqlSelectRunnersPoints . " or there was an ERROR: " . $mysqli->errno;
+			echo "<br><br>Oops! There's a problem with the race details. The error has been saved to the error log. <b><u>Please let Stu know and he'll try to fix it</u></b> :)";
+			$tLogWrite = date($tDateFormat) . "SQL ERROR: Either no rows returned or SQL ERROR: " . mysqli_error() . "\n";
+			fwrite($myLog,$tLogWrite);
         }        
     }
 /* OpenChamp Middle distance */    
@@ -1458,8 +1383,13 @@ function champTotalPoints($RID)
 /* OpenChamp Long distance */
     if($RaceCode == "4")
     {
-        $sqlSelectRunners = 'SELECT DISTINCT RunnerID FROM tblOpenChampDivGenRacePoints WHERE RaceID IN (Select RaceID FROM tblRaces WHERE RaceCode = 4 AND ChampYear=' . $iCurrentYear . ')';
-    
+		$tLogWrite = date($tDateFormat) . "Open Champ: Long distance race point tally" . "\n";
+		fwrite($myLog,$tLogWrite);
+		
+        $sqlSelectRunners = 'SELECT DISTINCT RunnerID FROM tblOpenChampDivGenRacePoints WHERE RaceID IN (Select RaceID FROM tblRaces WHERE RaceCode = 4 AND ChampYear=' . $RaceYear . ')';
+		$tLogWrite = date($tDateFormat) . "SQL: " . $sqlSelectRunners . "\n";
+		fwrite($myLog,$tLogWrite);
+		
         $result = mysqli_query($conn,$sqlSelectRunners);
     
         if(mysqli_num_rows($result) > 0)
@@ -1488,8 +1418,9 @@ function champTotalPoints($RID)
         }           
         else
         {
-            // Couldn't find any runners or times for this race!
-            echo "Couldn't find any runners or times for this Open Championship Long distance race! : " . $sqlSelectRunnersPoints . " or there was an ERROR: " . $mysqli->errno;
+			echo "<br><br>Oops! There's a problem with the race details. The error has been saved to the error log. <b><u>Please let Stu know and he'll try to fix it</u></b> :)";
+			$tLogWrite = date($tDateFormat) . "SQL ERROR: Either no rows returned or SQL ERROR: " . mysqli_error() . "\n";
+			fwrite($myLog,$tLogWrite);
         }        
     }
 /* OpenChamp Long distance */   
@@ -1498,8 +1429,13 @@ function champTotalPoints($RID)
 /* OpenChamp SprintMed distance */
     if($RaceCode == "32")
     {
-        $sqlSelectRunners = 'SELECT DISTINCT RunnerID FROM tblOpenChampDivGenRacePoints WHERE RaceID IN (Select RaceID FROM tblRaces WHERE RaceCode = 32 AND ChampYear=' . $iCurrentYear . ')';
-    
+		$tLogWrite = date($tDateFormat) . "Open Champ: Sprint-Med distance race point tally" . "\n";
+		fwrite($myLog,$tLogWrite);
+		
+        $sqlSelectRunners = 'SELECT DISTINCT RunnerID FROM tblOpenChampDivGenRacePoints WHERE RaceID IN (Select RaceID FROM tblRaces WHERE RaceCode = 32 AND ChampYear=' . $RaceYear . ')';
+		$tLogWrite = date($tDateFormat) . "SQL: " . $sqlSelectRunners . "\n";
+		fwrite($myLog,$tLogWrite);
+		
         $result = mysqli_query($conn,$sqlSelectRunners);
     
         if(mysqli_num_rows($result) > 0)
@@ -1521,70 +1457,31 @@ function champTotalPoints($RID)
                 
                 $result4 = mysqli_query($conn,$sqlUpdatePoints3);
 
-                $sqlUpdatePoints4 = sprintf('CALL proc_openChamp_ladies_long_top2(%1$s,%2$s);',$RunnerID, $RID);
+				//commented out as this is running the long procedure again for ladies unnecessarily
+                //$sqlUpdatePoints4 = sprintf('CALL proc_openChamp_ladies_long_top2(%1$s,%2$s);',$RunnerID, $RID);
                 
-                $result5 = mysqli_query($conn,$sqlUpdatePoints4);
+                //$result5 = mysqli_query($conn,$sqlUpdatePoints4);
             }
         }           
         else
         {
-            // Couldn't find any runners or times for this race!
-            echo "Couldn't find any runners or times for this Open Championship SprintMed distance race! : " . $sqlSelectRunnersPoints . " or there was an ERROR: " . $mysqli->errno;
+			echo "<br><br>Oops! There's a problem with the race details. The error has been saved to the error log. <b><u>Please let Stu know and he'll try to fix it</u></b> :)";
+			$tLogWrite = date($tDateFormat) . "SQL ERROR: Either no rows returned or SQL ERROR: " . mysqli_error() . "\n";
+			fwrite($myLog,$tLogWrite);
         }        
     }
 /* OpenChamp SprintMed distance */   
     
     
-/*
-
-THE PROCEDURE FOR OVERALL POINTS ISN'T USED
-
-*/
-
-    /* OpenChamp Overall points */
-    if($RaceCode == "1" || $RaceCode == "2" || $RaceCode == "4" || $RaceCode == "9")
-    {     
-        $sqlSelectRunners = 'SELECT DISTINCT RunnerID FROM tblOpenChampDivGenRacePoints WHERE RaceID IN (Select RaceID FROM tblRaces WHERE RaceCode IN (1,2,4,9) AND ChampYear=' . $iCurrentYear . ')';
-    
-        $result = mysqli_query($conn,$sqlSelectRunners);
-    
-        if(mysqli_num_rows($result) > 0)
-        {
-            // output data of each row
-            while($row = $result->fetch_assoc())
-            {
-                $RunnerID = $row["RunnerID"];
-                
-                $sqlUpdatePoints = sprintf('CALL proc_openChamp_overall_points(%1$s,%2$s);',$RunnerID, $RID);
-                
-                $result2 = mysqli_query($conn,$sqlUpdatePoints);
-
-                $sqlUpdatePoints2 = sprintf('CALL proc_openChamp_Divs_totalPoints(%1$s,%2$s);',$RunnerID, $RID);
-                
-                $result3 = mysqli_query($conn,$sqlUpdatePoints2);
-                
-                $sqlUpdatePoints3 = sprintf('CALL proc_openChamp_WMA_totalPoints(%1$s,%2$s);',$RunnerID, $RID);
-                
-                $result4 = mysqli_query($conn,$sqlUpdatePoints3);
-
-                $sqlUpdatePoints4 = sprintf('CALL proc_openChamp_ladies_totalPoints(%1$s,%2$s);',$RunnerID, $RID);
-                
-                $result5 = mysqli_query($conn,$sqlUpdatePoints4);
-            }
-        }           
-        else
-        {
-            // Couldn't find any runners or times for this race!
-            echo "Couldn't find any runners or times for this Open Championship Long distance race! : " . $sqlSelectRunnersPoints . " or there was an ERROR: " . $mysqli->errno;
-        }        
-    }
-/* OpenChamp Overall points */
-    
-
 /* ShortChamp races */
     if($RaceCode == "8" || $RaceCode == "9")
     {
-        $sqlSelectRunners = 'SELECT DISTINCT RunnerID FROM tblShortChampDivGenRacePoints WHERE RaceID IN (Select RaceID FROM tblRaces WHERE RaceCode IN (8,9) AND ChampYear=' . $iCurrentYear . ')';
+		$tLogWrite = date($tDateFormat) . "Short Champ: Race point tally" . "\n";
+		fwrite($myLog,$tLogWrite);
+		
+        $sqlSelectRunners = 'SELECT DISTINCT RunnerID FROM tblShortChampDivGenRacePoints WHERE RaceID IN (Select RaceID FROM tblRaces WHERE RaceCode IN (8,9) AND ChampYear=' . $RaceYear . ')';
+		$tLogWrite = date($tDateFormat) . "SQL: " . $sqlSelectRunners . "\n";
+		fwrite($myLog,$tLogWrite);
     
         $result = mysqli_query($conn,$sqlSelectRunners);
     
@@ -1606,8 +1503,9 @@ THE PROCEDURE FOR OVERALL POINTS ISN'T USED
         }           
         else
         {
-            // Couldn't find any runners or times for this race!
-            echo "Couldn't find any runners or times for this race! : " . $sqlSelectRunnersPoints . " or there was an ERROR: " . $mysqli->errno;
+			echo "<br><br>Oops! There's a problem with the race details. The error has been saved to the error log. <b><u>Please let Stu know and he'll try to fix it</u></b> :)";
+			$tLogWrite = date($tDateFormat) . "SQL ERROR: Either no rows returned or SQL ERROR: " . mysqli_error() . "\n";
+			fwrite($myLog,$tLogWrite);
         }       
     }    
 /* ShortChamp races */
@@ -1615,7 +1513,7 @@ THE PROCEDURE FOR OVERALL POINTS ISN'T USED
 /* Multi-Terrain Challenge races */
     if($RaceCode == "16")
     {
-        $sqlSelectRunners = 'SELECT DISTINCT RunnerID FROM tblMTChallDivGenRacePoints WHERE RaceID IN (Select RaceID FROM tblRaces WHERE RaceCode IN (16) AND ChampYear=' . $iCurrentYear . ')';
+        $sqlSelectRunners = 'SELECT DISTINCT RunnerID FROM tblMTChallDivGenRacePoints WHERE RaceID IN (Select RaceID FROM tblRaces WHERE RaceCode IN (16) AND ChampYear=' . $RaceYear . ')';
     
         $result = mysqli_query($conn,$sqlSelectRunners);
     
@@ -1656,176 +1554,6 @@ THE PROCEDURE FOR OVERALL POINTS ISN'T USED
 //
 
     
-//
-// SHORT CHAMP - START
-//
-
-/*
-// Rank the Division 1 Joint Race
-        //
-        // START
-        function rankShortChampDiv1JointRace($RID) {
-            require 'DBconn.php';
-
-            // the second SELECT statement is important as it returns the results of the stored procedure
-            $sqlRankDiv1Joint = 'CALL proc_shortChamp_Div1Joint_rank('.$RID.'); SELECT RaceID, RunnerID, RaceTime, rank;';
-
-            if(mysqli_multi_query($conn,$sqlRankDiv1Joint))
-            {
-                do{
-                    if($result=mysqli_store_result($conn)){
-                        while($row=mysqli_fetch_assoc($result)){
-                            setShortChampDiv1JointRacePoints($row['RaceID'], $row['RunnerID'], $row['rank']);               
-                        }
-                        mysqli_free_result($result);
-                    }
-                    if(mysqli_more_results($conn)) {
-                        // do nothing
-                    }
-                } while(mysqli_more_results($conn) && mysqli_next_result($conn));
-            }
-            else {
-                echo "Couldn't rank Div1Joint race";
-            }
-        }
-        // Rank the Division 1 Joint Race
-        //
-        // END
-
-        // Set the Division 1 Joint Race Points
-        //
-        // START    
-        function setShortChampDiv1JointRacePoints($RaceID,$RunnerID,$Rank) {
-            require 'DBconn.php';
-
-            // using a SQL stored procedure so DB can check if a record already exists for this RaceID, RunnerID combo before inserting a new record
-
-            // %1$s = RaceID, %2$s = RunnerID, %3$s = Rank
-            $sqlPointsDiv1Joint = sprintf('CALL proc_shortChamp_Div1Joint_points(%1$s,%2$s,%3$s)', $RaceID,$RunnerID,$Rank);
-
-            if (mysqli_multi_query($conn,$sqlPointsDiv1Joint) === TRUE)
-            {
-                //echo "<br>Race points added!<br>";
-            }
-            else
-            {
-                echo "Error: " . $sqlPointsDiv1Joint . "<br><br>" . mysqli_error() . "<br><br>";
-            }
-        }
-        // Set the Division 1 Joint Race Points
-        //
-        // END
-
-        // Rank the Division 2 Joint Race
-        //
-        // START
-        function rankShortChampDiv2JointRace($RID) {
-            require 'DBconn.php';
-
-            // the second SELECT statement is important as it returns the results of the stored procedure
-            $sqlRankDiv2Joint = 'CALL proc_shortChamp_Div2Joint_rank('.$RID.'); SELECT RaceID, RunnerID, RaceTime, rank;';
-
-            if(mysqli_multi_query($conn,$sqlRankDiv2Joint))
-            {
-                do{
-                    if($result=mysqli_store_result($conn)){
-                        while($row=mysqli_fetch_assoc($result)){
-                            setShortChampDiv2JointRacePoints($row['RaceID'], $row['RunnerID'], $row['rank']);               
-                        }
-                        mysqli_free_result($result);
-                    }
-                    if(mysqli_more_results($conn)) {
-                        // do nothing
-                    }
-                } while(mysqli_more_results($conn) && mysqli_next_result($conn));
-            }
-            else {
-                echo "Couldn't rank Div2Joint race";
-            }
-        }
-        // Rank the Division 2 Joint Race
-        //
-        // END
-
-        // Set the Division 2 Joint Race Points
-        //
-        // START    
-        function setShortChampDiv2JointRacePoints($RaceID,$RunnerID,$Rank) {
-            require 'DBconn.php';
-
-            // using a SQL stored procedure so DB can check if a record already exists for this RaceID, RunnerID combo before inserting a new record
-
-            // %1$s = RaceID, %2$s = RunnerID, %3$s = Rank
-            $sqlPointsDiv2Joint = sprintf('CALL proc_shortChamp_Div2Joint_points(%1$s,%2$s,%3$s)', $RaceID,$RunnerID,$Rank);
-
-            if (mysqli_multi_query($conn,$sqlPointsDiv2Joint) === TRUE)
-            {
-                //echo "<br>Race points added!<br>";
-            }
-            else
-            {
-                echo "Error: " . $sqlPointsDiv2Joint . "<br><br>" . mysqli_error() . "<br><br>";
-            }
-        }
-        // Set the Division 2 Joint Race Points
-        //
-        // END
-
-        // Rank the Division 3 Joint Race
-        //
-        // START
-        function rankShortChampDiv3JointRace($RID) {
-            require 'DBconn.php';
-
-            // the second SELECT statement is important as it returns the results of the stored procedure
-            $sqlRankDiv3Joint = 'CALL proc_shortChamp_Div3Joint_rank('.$RID.'); SELECT RaceID, RunnerID, RaceTime, rank;';
-
-            if(mysqli_multi_query($conn,$sqlRankDiv3Joint))
-            {
-                do{
-                    if($result=mysqli_store_result($conn)){
-                        while($row=mysqli_fetch_assoc($result)){
-                            setShortChampDiv3JointRacePoints($row['RaceID'], $row['RunnerID'], $row['rank']);               
-                        }
-                        mysqli_free_result($result);
-                    }
-                    if(mysqli_more_results($conn)) {
-                        // do nothing
-                    }
-                } while(mysqli_more_results($conn) && mysqli_next_result($conn));
-            }
-            else {
-                echo "Couldn't rank Div3Joint race";
-            }
-        }
-        // Rank the Division 3 Joint Race
-        //
-        // END
-
-        // Set the Division 3 Joint Race Points
-        //
-        // START    
-        function setShortChampDiv3JointRacePoints($RaceID,$RunnerID,$Rank) {
-            require 'DBconn.php';
-
-            // using a SQL stored procedure so DB can check if a record already exists for this RaceID, RunnerID combo before inserting a new record
-
-            // %1$s = RaceID, %2$s = RunnerID, %3$s = Rank
-            $sqlPointsDiv3Joint = sprintf('CALL proc_shortChamp_Div3Joint_points(%1$s,%2$s,%3$s)', $RaceID,$RunnerID,$Rank);
-
-            if (mysqli_multi_query($conn,$sqlPointsDiv3Joint) === TRUE)
-            {
-                //echo "<br>Race points added!<br>";
-            }
-            else
-            {
-                echo "Error: " . $sqlPointsDiv3Joint . "<br><br>" . mysqli_error() . "<br><br>";
-            }
-        }
-        // Set the Division 3 Joint Race Points
-        //
-        // END*/
-
 // Rank the Ladies Race
 //
 // START
@@ -1942,6 +1670,8 @@ function setShortChampMRacePoints($RaceID,$RunnerID,$Rank) {
 // START
 function rankShortChampDiv3MRace($RID) {
     require 'DBconn.php';
+
+	global $tLogWrite, $myLog, $tDateFormat;  
     
     // the second SELECT statement is important as it returns the results of the stored procedure
     $sqlRankM = 'CALL proc_shortChamp_Div3M_rank('.$RID.'); SELECT RaceID, RunnerID, RaceTime, rank;';
@@ -1951,6 +1681,8 @@ function rankShortChampDiv3MRace($RID) {
         do{
             if($result=mysqli_store_result($conn)){
                 while($row=mysqli_fetch_assoc($result)){
+					$tLogWrite = date($tDateFormat) . "Function rankShortChampDiv3MRace, setting race points for:- RaceID: " . $row['RaceID'] . ", RunnerID: " . $row['RunnerID'] . ", Rank: " . $row['rank'] . "\n";
+					fwrite($myLog,$tLogWrite);
                     setShortChampDiv3MRacePoints($row['RaceID'], $row['RunnerID'], $row['rank']);               
                 }
                 mysqli_free_result($result);
@@ -1997,7 +1729,9 @@ function setShortChampDiv3MRacePoints($RaceID,$RunnerID,$Rank) {
 // START
 function rankShortChampDiv3FRace($RID) {
     require 'DBconn.php';
-    
+ 
+	global $tLogWrite, $myLog, $tDateFormat;  
+	
     // the second SELECT statement is important as it returns the results of the stored procedure
     $sqlRankM = 'CALL proc_shortChamp_Div3F_rank('.$RID.'); SELECT RaceID, RunnerID, RaceTime, rank;';
     
@@ -2006,6 +1740,8 @@ function rankShortChampDiv3FRace($RID) {
         do{
             if($result=mysqli_store_result($conn)){
                 while($row=mysqli_fetch_assoc($result)){
+					$tLogWrite = date($tDateFormat) . "Function rankShortChampDiv3FRace, setting race points for:- RaceID: " . $row['RaceID'] . ", RunnerID: " . $row['RunnerID'] . ", Rank: " . $row['rank'] . "\n";
+					fwrite($myLog,$tLogWrite);
                     setShortChampDiv3FRacePoints($row['RaceID'], $row['RunnerID'], $row['rank']);               
                 }
                 mysqli_free_result($result);
@@ -2052,7 +1788,8 @@ function setShortChampDiv3FRacePoints($RaceID,$RunnerID,$Rank) {
 // START
 function rankShortChampDiv2MRace($RID) {
     require 'DBconn.php';
-    
+
+	global $tLogWrite, $myLog, $tDateFormat;     
     // the second SELECT statement is important as it returns the results of the stored procedure
     $sqlRankM = 'CALL proc_shortChamp_Div2M_rank('.$RID.'); SELECT RaceID, RunnerID, RaceTime, rank;';
     
@@ -2061,6 +1798,8 @@ function rankShortChampDiv2MRace($RID) {
         do{
             if($result=mysqli_store_result($conn)){
                 while($row=mysqli_fetch_assoc($result)){
+					$tLogWrite = date($tDateFormat) . "Function rankShortChampDiv2MRace, setting race points for:- RaceID: " . $row['RaceID'] . ", RunnerID: " . $row['RunnerID'] . ", Rank: " . $row['rank'] . "\n";
+					fwrite($myLog,$tLogWrite);
                     setShortChampDiv2MRacePoints($row['RaceID'], $row['RunnerID'], $row['rank']);               
                 }
                 mysqli_free_result($result);
@@ -2107,7 +1846,8 @@ function setShortChampDiv2MRacePoints($RaceID,$RunnerID,$Rank) {
 // START
 function rankShortChampDiv2FRace($RID) {
     require 'DBconn.php';
-    
+
+	global $tLogWrite, $myLog, $tDateFormat;     
     // the second SELECT statement is important as it returns the results of the stored procedure
     $sqlRankM = 'CALL proc_shortChamp_Div2F_rank('.$RID.'); SELECT RaceID, RunnerID, RaceTime, rank;';
     
@@ -2116,6 +1856,8 @@ function rankShortChampDiv2FRace($RID) {
         do{
             if($result=mysqli_store_result($conn)){
                 while($row=mysqli_fetch_assoc($result)){
+					$tLogWrite = date($tDateFormat) . "Function rankShortChampDiv2FRace, setting race points for:- RaceID: " . $row['RaceID'] . ", RunnerID: " . $row['RunnerID'] . ", Rank: " . $row['rank'] . "\n";
+					fwrite($myLog,$tLogWrite);
                     setShortChampDiv2FRacePoints($row['RaceID'], $row['RunnerID'], $row['rank']);               
                 }
                 mysqli_free_result($result);
@@ -2163,7 +1905,8 @@ function setShortChampDiv2FRacePoints($RaceID,$RunnerID,$Rank) {
 // START
 function rankShortChampDiv1MRace($RID) {
     require 'DBconn.php';
-    
+
+	global $tLogWrite, $myLog, $tDateFormat;     
     // the second SELECT statement is important as it returns the results of the stored procedure
     $sqlRankM = 'CALL proc_shortChamp_Div1M_rank('.$RID.'); SELECT RaceID, RunnerID, RaceTime, rank;';
     
@@ -2172,6 +1915,8 @@ function rankShortChampDiv1MRace($RID) {
         do{
             if($result=mysqli_store_result($conn)){
                 while($row=mysqli_fetch_assoc($result)){
+					$tLogWrite = date($tDateFormat) . "Function rankShortChampDiv1MRace, setting race points for:- RaceID: " . $row['RaceID'] . ", RunnerID: " . $row['RunnerID'] . ", Rank: " . $row['rank'] . "\n";
+					fwrite($myLog,$tLogWrite);
                     setShortChampDiv1MRacePoints($row['RaceID'], $row['RunnerID'], $row['rank']);               
                 }
                 mysqli_free_result($result);
@@ -2218,7 +1963,8 @@ function setShortChampDiv1MRacePoints($RaceID,$RunnerID,$Rank) {
 // START
 function rankShortChampDiv1FRace($RID) {
     require 'DBconn.php';
-    
+
+	global $tLogWrite, $myLog, $tDateFormat;     
     // the second SELECT statement is important as it returns the results of the stored procedure
     $sqlRankM = 'CALL proc_shortChamp_Div1F_rank('.$RID.'); SELECT RaceID, RunnerID, RaceTime, rank;';
     
@@ -2227,6 +1973,8 @@ function rankShortChampDiv1FRace($RID) {
         do{
             if($result=mysqli_store_result($conn)){
                 while($row=mysqli_fetch_assoc($result)){
+					$tLogWrite = date($tDateFormat) . "Function rankShortChampDiv1FRace, setting race points for:- RaceID: " . $row['RaceID'] . ", RunnerID: " . $row['RunnerID'] . ", Rank: " . $row['rank'] . "\n";
+					fwrite($myLog,$tLogWrite);
                     setShortChampDiv1FRacePoints($row['RaceID'], $row['RunnerID'], $row['rank']);               
                 }
                 mysqli_free_result($result);
@@ -2395,7 +2143,9 @@ function setMTChallFRacePoints($RaceID,$RunnerID,$Rank) {
     
 /////////////////////    
     
-
+	$tLogWrite = "- - - End of log entries for: " . date("Y-m-d_H-i") . "\n";
+	fwrite($myLog,$tLogWrite);
+	fclose($myLog);
 ?>
 <body>
 <br><br>

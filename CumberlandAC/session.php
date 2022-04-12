@@ -10,15 +10,13 @@ else {
     $user_check='';
 }
 
+// include the variables that are used universally across the CAC pages
+include('globalVariables.php');
+
 // to access archived championship records
 if(isset($_GET['champYear'])) {
     $RaceYear = $_GET['champYear'];
 }
-else {
-	// commented out to have manual year entry in session variable - mitigates year end bug of all race times disappearing
-    //$RaceYear = date("Y");
-	$RaceYear = 2021;
-}   
 
 // SQL Query To Fetch Complete Information Of User
 $sql = "select username from login where username='$user_check'";

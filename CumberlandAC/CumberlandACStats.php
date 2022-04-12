@@ -1,15 +1,4 @@
 <?php
-
-    // to access archived championship records
-    if(isset($_GET['champYear'])) {
-        $RaceYear = $_GET['champYear'];
-    }
-    else {
-		// commented out to have manual year entry in session variable - mitigates year end bug of all race times disappearing
-		//$RaceYear = date("Y");
-		$RaceYear = 2021;
-    }    
-
 $sqlTopThreeMostPopularRaces = "SELECT tblRaceTimes.RaceID, tblRaces.RaceName, count(RaceTime) AS runner_count FROM tblRaceTimes INNER JOIN tblRaces ON tblRaceTimes.RaceID = tblRaces.RaceID WHERE tblRaces.ChampYear = " . $RaceYear . " GROUP BY RaceID ORDER BY runner_count DESC LIMIT 3";
 
 $sqlMenAveragePace = "SELECT SEC_TO_TIME(AVG(1609.344/(tblRaces.RaceDist / TIME_TO_SEC(RaceTime)))) AS 'Average Pace' FROM tblRaceTimes INNER JOIN tblRaces ON tblRaceTimes.RaceID = tblRaces.RaceID INNER JOIN tblRunners ON tblRaceTimes.RunnerID = tblRunners.RunnerID WHERE tblRunners.RunnerSex = 'M' AND tblRaces.ChampYear = " . $RaceYear;

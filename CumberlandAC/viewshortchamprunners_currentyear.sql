@@ -9,7 +9,7 @@ tblShortChampDivGenOverallPoints.ChampionshipID AS ChampionshipID,
 tblShortChampDivGenOverallPoints.ChampYear AS ChampYear
 FROM (tblShortChampDivGenOverallPoints
        JOIN tblRunners on((tblShortChampDivGenOverallPoints.RunnerID = tblRunners.RunnerID)))
-WHERE ((tblShortChampDivGenOverallPoints.ChampYear = YEAR(CURDATE()))
+WHERE ((tblShortChampDivGenOverallPoints.ChampYear = 2022)
        AND (tblShortChampDivGenOverallPoints.ShortChampDivGenOverallPoints > 0))
        AND tblShortChampDivGenOverallPoints.RunnerSex IN ('M','F')
 ORDER BY tblRunners.RunnerSex desc,

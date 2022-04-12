@@ -7,11 +7,6 @@
     if(isset($_GET['champYear'])) {
         $RaceYear = $_GET['champYear'];
     }
-    else {
-		// commented out to have manual year entry in session variable - mitigates year end bug of all race times disappearing
-		//$RaceYear = date("Y");
-		$RaceYear = 2021;
-    }    
 ?>
     <head>
       <meta charset="utf-8">
@@ -26,7 +21,6 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
       <![endif]-->
     </head>
-
     <body>
         <div id="tab-wrapper" class="tab-wrapper">
             <?php
@@ -171,27 +165,28 @@
                     <th>View Championships</th>
                 </tr>
                 <tr>
-                    <td>2021 Alternative Club Championship</td>
+                    <td><?php echo $RaceYear; ?> Club Championship</td>
                 </tr>
                 <tr>
                     <td>
                         <ul>
                             <li><a href="viewRacesOCDivs_new_v1.php?champYear=<?php echo $RaceYear; ?>">Open Championship - Division 1/2/3</a></li>
                             <li><a href="viewRacesOCWMA_new_v1.php?champYear=<?php echo $RaceYear; ?>">Open Championship - MASTERS</a></li>
+
 		<?php
                             // <li><a href="viewRacesOCLadies.php?champYear=2018">Open Championship - Ladies (2018 ONLY)</a></li>
 		?>
                         </ul>
                     </td>
                 </tr>
-		<?php
-/*                 <tr>
+                 <tr>
                     <td>Short Championship</td>
                 </tr>
                 <tr>
                     <td>
                         <ul>
-                            <li><a href="viewRacesSCDivs_new_v1.php?champYear=<?php echo $RaceYear; ?>">Short Championship - Male/Female</a></li>
+                            <li><a href="viewRacesSCDivs_new_v1.php?champYear=<?php echo $RaceYear; ?>">Short Championship - Division 1/2/3</a></li>
+                           <?php /* <li><a href="viewRacesSCDivs_new_v1.php?champYear=<?php echo $RaceYear; ?>">Short Championship - Male/Female</a></li>*/ ?>
                         </ul>
                     </td>
                 </tr>
@@ -204,8 +199,7 @@
                             <li><a href="viewRacesMTChall_new_v1.php?champYear=<?php echo $RaceYear; ?>">Multi-Terrain Challenge - Male/Female</a></li>
                         </ul>
                     </td>
-                </tr> */
-		?>
+                </tr>
             </table>
     <?php
         }

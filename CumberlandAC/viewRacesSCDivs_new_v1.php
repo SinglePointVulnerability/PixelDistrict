@@ -1,4 +1,6 @@
 <?php
+    include('session.php');
+	
     session_start();// Starting Session
     // Storing Session
     if(isset($_SESSION['login_user'])) {
@@ -18,11 +20,6 @@
     if(isset($_GET['champYear'])) {
         $RaceYear = $_GET['champYear'];
     }
-    else {
-        $RaceYear = date("Y");
-    }
-
-    require 'DBconn.php';
 
     $ChampionshipName = "Short Championship";
 
@@ -102,7 +99,7 @@
         // queries for 2018 races - end
     }
     else {
-        if($RaceYear == date("Y"))
+        if($RaceYear == 2022)
         {
             // if it's the current year, the correct divisions will be found in the tblRunners table
             $txtViewSCRunners = "viewshortchamprunners_currentyear";

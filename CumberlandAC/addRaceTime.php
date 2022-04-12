@@ -5,8 +5,8 @@
 <head>
   <meta charset="utf-8">
 
-  <title>Cumberland AC DB Admin</title>
-  <meta name="description" content="Cumberland AC DB Admin - Add Race Time">
+  <title>Cumberland AC Race Time Admin, <?php echo $RaceYear; ?></title>
+  <meta name="description" content="Cumberland AC Race Time Admin - Add Race Time">
   <meta name="author" content="West Coast Web Design">
 
   <link rel="stylesheet" href="css/styles.css<?php echo "?date=" . date("Y-m-d_H-i"); ?>">
@@ -23,20 +23,8 @@ if($login_user=='')
 }
 else if ($login_user=='club_stat' || $login_user=='admin')
 {
-/*
-    // un comment these lines of code to prevent any race times from being added (mainly for while site is under development)
-
-    echo "Sorry, site under development, no new race times can currently be added";
-}
-else if ($login_user=='under_dev')
-{
-*/
-    require 'DBconn.php';
-	
-	$iCurrentYear = 2021; //$date("Y");
-
     //load all open champ races from the current year into an array
-    $sqlOpenChamp = "SELECT RaceID, RaceName, RaceCode FROM tblRaces WHERE RaceDate BETWEEN '" . $iCurrentYear . "-01-01' AND '" . $iCurrentYear . "-12-31' AND RaceCode IN(1,2,4,9,32) ORDER BY field(RaceCode,1,9,32,2,4), RaceDate ASC";
+    $sqlOpenChamp = "SELECT RaceID, RaceName, RaceCode FROM tblRaces WHERE RaceDate BETWEEN '" . $RaceYear . "-01-01' AND '" . $RaceYear . "-12-31' AND RaceCode IN(1,2,4,9,32) ORDER BY field(RaceCode,1,9,32,2,4), RaceDate ASC";
     $intOpenChampSprintCount=0;
     $intOpenChampSprintMedCount=0;
     $intOpenChampMiddleCount=0;
@@ -44,14 +32,14 @@ else if ($login_user=='under_dev')
 
     //load all short champ races from the current year into an array
     $sqlShortChamp = "SELECT RaceID, RaceName FROM tblRaces " .
-                    "WHERE RaceDate BETWEEN '" . $iCurrentYear . "-01-01' AND '" . $iCurrentYear . "-12-31' " .
+                    "WHERE RaceDate BETWEEN '" . $RaceYear . "-01-01' AND '" . $RaceYear . "-12-31' " .
                     "AND RaceCode IN (8,9) " .
                     "ORDER BY RaceDate ASC";
     $intShortChampCount=0;
 
     //load all MT Challenge races from the current year into an array
     $sqlMTChall = "SELECT RaceID, RaceName FROM tblRaces " .
-                    "WHERE RaceDate BETWEEN '" . $iCurrentYear . "-01-01' AND '" . $iCurrentYear . "-12-31' " .
+                    "WHERE RaceDate BETWEEN '" . $RaceYear . "-01-01' AND '" . $RaceYear . "-12-31' " .
                     "AND RaceCode IN (16) " .
                     "ORDER BY RaceDate ASC";
     $intMTChallCount=0;
