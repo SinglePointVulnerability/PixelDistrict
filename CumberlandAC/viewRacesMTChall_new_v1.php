@@ -18,7 +18,7 @@
         $RaceYear = $_GET['champYear'];
     }
     else {
-        $RaceYear = date("Y");
+        $RaceYear = 2022;
     }
 
     require 'DBconn.php';
