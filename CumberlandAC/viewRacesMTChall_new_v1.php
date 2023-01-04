@@ -18,7 +18,7 @@
         $RaceYear = $_GET['champYear'];
     }
     else {
-        $RaceYear = 2022;
+        $RaceYear = date("Y");
     }
 
     require 'DBconn.php';
@@ -28,7 +28,7 @@
 
     $sqlGetMTChallRaces = "select RaceID, RaceDate, RaceName from tblRaces WHERE RaceCode=16 AND RaceDate BETWEEN '$RaceYear-01-01' AND '$RaceYear-12-31' ORDER BY RaceDate";
     
-    if($RaceYear == date("Y")) {
+    if($RaceYear == 2022) {
         $txtMTChallView = "viewmtchallrunners_currentyear";
     }
     else {

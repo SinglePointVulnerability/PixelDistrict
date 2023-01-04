@@ -10,6 +10,6 @@ tblMTChallDivGenOverallPoints.ChampYear
 FROM tblMTChallDivGenOverallPoints
     JOIN tblRunners ON tblMTChallDivGenOverallPoints.RunnerID = tblRunners.RunnerID
 WHERE tblMTChallDivGenOverallPoints.MTChallDivGenOverallPoints > 0
-    AND tblMTChallDivGenOverallPoints.ChampYear = YEAR(CURDATE())
+    AND tblMTChallDivGenOverallPoints.ChampYear = 2022
 ORDER BY tblMTChallDivGenOverallPoints.RunnerSex,
 tblMTChallDivGenOverallPoints.MTChallDivGenOverallPoints DESC
